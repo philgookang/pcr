@@ -1,11 +1,13 @@
 import torch
 import torch.utils.data as data
-
-from sklearn.preprocessing import LabelEncoder, OneHotEncoder
-import warnings
+import os
+from PIL import Image
 
 from config import *
 from helper import *
+
+from sklearn.preprocessing import LabelEncoder, OneHotEncoder
+import warnings
 
 class PretrainDataset(data.Dataset):
 
@@ -35,7 +37,7 @@ class PretrainDataset(data.Dataset):
         item = self.dataset["data"][index]
 
         # get image
-        image = load_image(coco_image_path + item["filename"])
+        image = self.load_image(coco_image_path + item["filename"], self.transform)
 
         # get one hot encoding of word
         label = self.label_encoder.transform([item["word"]])
@@ -43,3 +45,10 @@ class PretrainDataset(data.Dataset):
         label = torch.from_numpy(label[0])
 
         return image, label
+
+
+    def load_image(self, filename, transform = None):
+        image = Image.open(filename).convert("RGB")
+        if transform is not None:
+            image = transform(image)
+        return image

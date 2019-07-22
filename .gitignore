@@ -6,7 +6,7 @@ __pycache__/
 # C extensions
 *.so
 
-result/dataset/*.plk
+result/dataset/*.pkl
 result/model/*.pt
 
 # Distribution / packaging

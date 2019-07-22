@@ -1,5 +1,3 @@
-import pickle
-
 model_file = {
     "noun"          : { "pretrain" : "cnn_noun_pretrain.pt", "train" : "cnn_noun_train.pt" },
     "pronoun"       : { "pretrain" : "cnn_pronoun_pretrain.pt", "train" : "cnn_pronoun_train.pt" },

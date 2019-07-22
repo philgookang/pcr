@@ -5,6 +5,11 @@ from config.nltk import nltk_to_pos
 
 from config.train import validation_and_test_dataset_size
 from config.train import threshold
+from config.train import image_crop_size
+from config.train import number_of_workers
+from config.train import pretrain_number_epochs
+from config.train import pretrain_batch_size
+
 
 from config.coco import coco_data_path
 from config.coco import coco_caption_path

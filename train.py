@@ -170,35 +170,13 @@ def train(learning_rate):
     return noun_model, verb_model, adjective_model, conjunction_model, preposition_model, decoder_model
 
 
-def combine_vertically(*args):
-    lst = []
-    for a, b, c, d, e in zip(*args):
-        z = torch.cat((a, b, c, d, e))
-        lst.append(z.cpu().detach().numpy())
-    final = torch.tensor(lst)
-    return final
-
-
 def load_model(pos, embed_size, device, new_embed_size):
-
-    # load features
     features = torch.load("result/model/" + model_file[pos]["pretrain"])
-
-    # setup model
     cnn_model = Encoder(embed_size = embed_size)
-
-    # use multiple devices
     cnn_model = nn.DataParallel(cnn_model)
-
-    # send model to device
     cnn_model.to(device, non_blocking=True)
-
-    # load trained parameters
     cnn_model.load_state_dict(features)
-
-    # update layers
     cnn_model.module.update_layer(new_embed_size)
-
     return cnn_model
 
 

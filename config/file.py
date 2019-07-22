@@ -6,7 +6,8 @@ model_file = {
     "adverb"        : { "pretrain" : "cnn_adverb_pretrain.pt", "train" : "cnn_adverb_train.pt" },
     "conjunction"   : { "pretrain" : "cnn_conjunction_pretrain.pt", "train" : "cnn_conjunction_train.pt" },
     "preposition"   : { "pretrain" : "cnn_preposition_pretrain.pt", "train" : "cnn_preposition_train.pt" },
-    "interjection"  : { "pretrain" : "cnn_interjection_pretrain.pt", "train" : "cnn_interjection_train.pt" }
+    "interjection"  : { "pretrain" : "cnn_interjection_pretrain.pt", "train" : "cnn_interjection_train.pt" },
+    "decoder"       : { "train" : "rnn_decoder.pt" }
 }
 
 dataset_file = {

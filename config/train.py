@@ -20,3 +20,4 @@ pretrain_number_epochs = 6
 
 # size of each training cycle
 pretrain_batch_size = 124
+train_batch_size = 128

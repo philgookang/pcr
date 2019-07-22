@@ -7,11 +7,10 @@ from torch.utils import model_zoo as zoo
 class Encoder(nn.Module):
 
     def __init__(self, **kwargs):
-        super(Pretrain, self).__init__()
+        super(Encoder, self).__init__()
 
         # dimension of word embedding vectors
         embed_size = kwargs['embed_size'] if 'embed_size' in kwargs else 256
-
 
         # load pretrained resent 152 model
         # delete the last fc layer

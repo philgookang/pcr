@@ -12,9 +12,6 @@ model_file = {
 
 dataset_file = {
     "pretrain"          : "cnn_pretrain_dataset.pkl",
-    "train_org"         : "train_complete_dataset.pkl",
-    "validation_org"    : "validation_complete_dataset.pkl",
-    "test_org"          : "test_complete_dataset.pkl",
     "train"             : "cnn_rnn_train_dataset.pkl",
     "test"              : "cnn_rnn_test_dataset.pkl",
     "validation"        : "cnn_rnn_validation_dataset.pkl"

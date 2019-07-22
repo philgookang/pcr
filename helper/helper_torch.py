@@ -15,3 +15,11 @@ def coco_collate_fn(data):
         end = lengths[i]
         targets[i, :end] = cap[:end]
     return images, targets, lengths
+
+def combine_vertically(*args):
+    lst = []
+    for a, b, c, d, e in zip(*args):
+        z = torch.cat((a, b, c, d, e))
+        lst.append(z.cpu().detach().numpy())
+    final = torch.tensor(lst)
+    return final

@@ -1,4 +1,4 @@
-from torchvision import transforms
+import torch
 
 def coco_collate_fn(data):
     # Sort a data list by caption length (descending order).
@@ -15,10 +15,3 @@ def coco_collate_fn(data):
         end = lengths[i]
         targets[i, :end] = cap[:end]
     return images, targets, lengths
-
-def resnet_transform():
-    return transforms.Compose([
-        transforms.RandomCrop(crop_size),
-        transforms.RandomHorizontalFlip(),
-        transforms.ToTensor(),
-        transforms.Normalize((0.485, 0.456, 0.406), (0.229, 0.224, 0.225))])

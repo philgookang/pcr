@@ -92,3 +92,10 @@ for word in words: train_dataset["corpus"].append(word)
 # save dataset to file
 save_dataset(dataset_file["pretrain"], pretrain_dataset)
 save_dataset(dataset_file["train"], train_dataset)
+
+
+#######
+
+print("PoS", "Corpus", "Data")
+for k in pretrain_dataset:
+    print(k, len(pretrain_dataset[k]["corpus"]), len(pretrain_dataset[k]["data"]))

@@ -29,13 +29,11 @@ def train(pos, dataset, learning_rate, use_visdom):
     # print embed size
     print("embed_size: ", embed_size)
 
-
     trans =  transforms.Compose([
         transforms.RandomCrop(image_crop_size),
         transforms.RandomHorizontalFlip(),
         transforms.ToTensor(),
         transforms.Normalize((0.485, 0.456, 0.406), (0.229, 0.224, 0.225))])
-
 
     # create visdom graph
     vis = visdom.Visdom()

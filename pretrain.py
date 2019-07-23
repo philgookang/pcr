@@ -108,7 +108,7 @@ def train(pos, dataset, learning_rate, use_visdom):
                     else:
                         vis.line(X=np.array([i]), Y=np.array([loss_val]), name="Epoch {0}".format(epoch), update='append', win=loss_graph)
 
-                print('Epoch [{}/{}], Step [{}/{}], Loss: {:.4f}'.format(epoch+1, pretrain_number_epochs, i+1, total_step, loss_val))
+                print(pos, 'Epoch [{}/{}], Step [{}/{}], Loss: {:.4f}'.format(epoch+1, pretrain_number_epochs, i+1, total_step, loss_val))
 
     # return trained model
     return cnn_model

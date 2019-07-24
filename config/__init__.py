@@ -14,5 +14,6 @@ from config.train import train_batch_size
 from config.coco import base_path
 from config.coco import coco_data_path
 from config.coco import coco_caption_path_train
+from config.coco import coco_caption_path_validation
 from config.coco import coco_train_image_path
 from config.coco import coco_pretrain_image_path

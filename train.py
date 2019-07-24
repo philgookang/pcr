@@ -45,9 +45,6 @@ def train(learning_rate, use_visdom):
     # randomize dataset
     is_shuffle = True
 
-    # image random crop size
-    crop_size = 224
-
     # log step size
     log_step = 5
 

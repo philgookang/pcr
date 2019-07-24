@@ -3,6 +3,7 @@ from component import *
 from config import *
 
 from tqdm import tqdm
+from random import shuffle
 
 import nltk
 import pickle
@@ -49,16 +50,13 @@ validation_dataset = {
 }
 
 for filename in tqdm(validation_set):
-
     for word_list in validation_set[filename]["reference"]:
         for word in word_list:
             if word not in validation_dataset["corpus"]:
                 validation_dataset["corpus"].append(word)
 
-    validation_dataset["data"].append({
-        "filename"  : filename,
-        "reference" : validation_set[filename]["reference"],
-        "caption"   : None
-    })
+        validation_dataset["data"].append({ "filename" : filename, "caption" : word_list })
+
+shuffle(validation_dataset["data"])
 
 save_dataset(dataset_file["validation"], validation_dataset)

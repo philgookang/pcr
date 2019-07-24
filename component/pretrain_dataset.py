@@ -37,7 +37,7 @@ class PretrainDataset(data.Dataset):
         item = self.dataset["data"][index]
 
         # get image
-        image = self.load_image(coco_pretrain_image_path + item["filename"], self.transform)
+        image = self.load_image(coco_pretrain_image_path + item["filename"])
 
         # get one hot encoding of word
         label = self.label_encoder.transform([item["word"]])
@@ -47,8 +47,7 @@ class PretrainDataset(data.Dataset):
         return image, label
 
 
-    def load_image(self, filename, transform = None):
+    def load_image(self, filename):
         image = Image.open(filename).convert("RGB")
-        if transform is not None:
-            image = transform(image)
+        image = self.transform(image)
         return image

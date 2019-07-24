@@ -12,7 +12,7 @@ import torch.backends.cudnn as cudnn
 from torchvision import transforms
 from torch.nn.utils.rnn import pack_padded_sequence
 
-def train(learning_rate):
+def train(learning_rate, use_visdom):
 
     # #################################################################################
     # VARIABLES
@@ -83,11 +83,11 @@ def train(learning_rate):
                                          collate_fn = coco_collate_fn)
 
     # Build the model
-    noun_model = load_model("noun", len(pretrain_dataset["noun"]["data"]), device, embed_size)
-    verb_model = load_model("verb", len(pretrain_dataset["noun"]["verb"]), device, embed_size)
-    adjective_model = load_model("adjective", len(pretrain_dataset["noun"]["data"]), device, embed_size)
-    conjunction_model = load_model("conjunction", len(pretrain_dataset["conjunction"]["data"]), device, embed_size)
-    preposition_model = load_model("preposition", len(pretrain_dataset["preposition"]["data"]), device, embed_size)
+    noun_model = load_model("noun", len(pretrain_dataset["noun"]["corpus"]), device, embed_size)
+    verb_model = load_model("verb", len(pretrain_dataset["verb"]["corpus"]), device, embed_size)
+    adjective_model = load_model("adjective", len(pretrain_dataset["adjective"]["corpus"]), device, embed_size)
+    conjunction_model = load_model("conjunction", len(pretrain_dataset["conjunction"]["corpus"]), device, embed_size)
+    preposition_model = load_model("preposition", len(pretrain_dataset["preposition"]["corpus"]), device, embed_size)
     decoder_model = Decoder( (embed_size * 5) , hidden_size, len(train_dataset["corpus"]), number_of_layers)
 
     # send to GPU
@@ -192,7 +192,7 @@ if __name__ == "__main__":
     for lr in learning_rate:
 
         # train PoS CNN - RNN
-        noun, verb, adjective, conjunction, preposition, decoder = train(lr)
+        noun, verb, adjective, conjunction, preposition, decoder = train(lr, True)
 
         # save trained model
         save_model(noun, model_file["noun"]["train"])

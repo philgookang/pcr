@@ -81,7 +81,7 @@ class Pcr():
 
         # load rnn model
         if self.rnn_model == None:
-            self.rnn_model = self.load_rnn_model((embed_size * 5), hidden_size, len(train_dataset["corpus"]), number_of_layers)
+            self.rnn_model = self.load_rnn_model((embed_size * 5), hidden_size, len(tran_eval_dataset["corpus"]), number_of_layers)
 
         # load image
         image = self.load_image_file(image_file_full_path, transform)

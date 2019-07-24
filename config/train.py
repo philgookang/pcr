@@ -1,5 +1,7 @@
 
 
+# number of epochs
+cnn_rnn_number_epochs = 100
 
 validation_and_test_dataset_size = 5000
 

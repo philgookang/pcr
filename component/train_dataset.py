@@ -1,5 +1,7 @@
 import torch
 import torch.utils.data as data
+import os
+from PIL import Image
 
 from sklearn.preprocessing import LabelEncoder, OneHotEncoder
 import warnings
@@ -30,10 +32,10 @@ class TrainDataset(data.Dataset):
         item = self.dataset["data"][index]
 
         # get image
-        image = load_image(coco_image_path + item["filename"])
+        image = self.load_image(coco_train_image_path + item["filename"])
 
         # get one hot encoding of word
-        label = get_label(item["caption"])
+        label = self.get_label(item["caption"])
 
         return image, label
 
@@ -43,12 +45,18 @@ class TrainDataset(data.Dataset):
         return label[0]
 
 
-    def get_label(self, item):
+    def get_label(self, word_list):
 
         caption = [ ]
         caption.append(self.convert_word("<start>"))
-        caption.extend([self.convert_word(word) for word in item["caption"]])
+        for word in word_list:
+            caption.append(self.convert_word(word))
         caption.append(self.convert_word("<end>"))
         target = torch.Tensor(caption)
 
         return target
+
+    def load_image(self, filename):
+        image = Image.open(filename).convert("RGB")
+        image = self.transform(image)
+        return image

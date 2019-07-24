@@ -9,7 +9,7 @@ import pickle
 import json
 
 # coco initalize
-with open(coco_caption_path_train) as f:
+with open(coco_caption_path_validation) as f:
     train_coco = json.load(f)
 
 # coco image holder
@@ -49,7 +49,13 @@ validation_dataset = {
 }
 
 for filename in tqdm(validation_set):
-    validation_dataset.append({
+
+    for word_list in validation_set[filename]["reference"]:
+        for word in word_list:
+            if word not in validation_dataset["corpus"]:
+                validation_dataset["corpus"].append(word)
+
+    validation_dataset["data"].append({
         "filename"  : filename,
         "reference" : validation_set[filename]["reference"],
         "caption"   : None

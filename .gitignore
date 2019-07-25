@@ -8,6 +8,7 @@ __pycache__/
 
 result/dataset/*.pkl
 result/model/*.pt
+result/early_stop.bin
 
 # Distribution / packaging
 .Python

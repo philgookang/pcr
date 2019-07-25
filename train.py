@@ -5,6 +5,7 @@ from config import *
 
 import matplotlib.pyplot as plt
 
+import os
 import pickle
 import torch
 import numpy as np
@@ -28,6 +29,12 @@ def train(learning_rate, use_visdom):
 
     # train dataset
     validation_dataset = load_dataset(dataset_file["validation"])
+
+    # train dataset size
+    train_dataset_size = len(train_dataset["corpus"])
+
+    # validation dataset size
+    validation_dataset_size = len(validation_dataset["corpus"])
 
     # number of process worker
     number_of_workers = 32
@@ -94,13 +101,17 @@ def train(learning_rate, use_visdom):
     preposition_model = load_model("preposition", len(pretrain_dataset["preposition"]["corpus"]), device, embed_size)
 
     # Build Decoer
-    decoder_model = Decoder( (embed_size * 5) , decoder_hidden_size, len(train_dataset["corpus"]), lstm_number_of_layers)
-    decoder_model = decoder_model.to(device, non_blocking = True) # send to GPU
-    decoder_model = nn.DataParallel(decoder_model, device_ids = [0]) # parallelize model
+    decoder_model_train = Decoder( (embed_size * 5) , decoder_hidden_size, train_dataset_size, lstm_number_of_layers)
+    decoder_model_train = decoder_model_train.to(device, non_blocking = True) # send to GPU
+    decoder_model_train = nn.DataParallel(decoder_model_train, device_ids = [0]) # parallelize model
+    decoder_model_eval = Decoder( (embed_size * 5) , decoder_hidden_size, train_dataset_size, lstm_number_of_layers)
+    decoder_model_eval = decoder_model_eval.to(device, non_blocking = True) # send to GPU
+    decoder_model_eval = nn.DataParallel(decoder_model_eval, device_ids = [0]) # parallelize model
 
     # loss function & optimization
-    criterion = nn.CrossEntropyLoss().cuda() if torch.cuda.is_available() else nn.CrossEntropyLoss()
-    params = list(decoder_model.parameters()) + list(preposition_model.module.linear.parameters()) + list(preposition_model.module.bn.parameters()) + list(conjunction_model.module.linear.parameters()) + list(conjunction_model.module.bn.parameters()) + list(adjective_model.module.linear.parameters()) + list(adjective_model.module.bn.parameters()) + list(verb_model.module.linear.parameters()) + list(verb_model.module.bn.parameters()) + list(noun_model.module.linear.parameters()) + list(noun_model.module.bn.parameters())
+    train_criterion = nn.CrossEntropyLoss().cuda() if torch.cuda.is_available() else nn.CrossEntropyLoss()
+    validation_criterion = nn.CrossEntropyLoss().cuda() if torch.cuda.is_available() else nn.CrossEntropyLoss()
+    params = list(decoder_model_train.parameters()) + list(preposition_model.module.linear.parameters()) + list(preposition_model.module.bn.parameters()) + list(conjunction_model.module.linear.parameters()) + list(conjunction_model.module.bn.parameters()) + list(adjective_model.module.linear.parameters()) + list(adjective_model.module.bn.parameters()) + list(verb_model.module.linear.parameters()) + list(verb_model.module.bn.parameters()) + list(noun_model.module.linear.parameters()) + list(noun_model.module.bn.parameters())
     optimizer = torch.optim.Adam(params, lr = learning_rate)
 
     # #################################################################################
@@ -126,7 +137,8 @@ def train(learning_rate, use_visdom):
         adjective_model.train()
         conjunction_model.train()
         preposition_model.train()
-        decoder_model.train()
+        decoder_model_train.train()
+        decoder_model_eval.train()
         for i, (images, captions, lengths) in enumerate(train_dataset_loader):
 
             # set tensor to GPU
@@ -143,16 +155,17 @@ def train(learning_rate, use_visdom):
             conjunction_features = conjunction_model(images)
             preposition_features = preposition_model(images)
             features = combine_vertically(noun_features, verb_features, adjective_features, conjunction_features, preposition_features)
-            outputs = decoder_model(features, captions, lengths)
+            features = features.to(device, non_blocking = True)
+            outputs = decoder_model_train(features, captions, lengths)
 
             # backpropagation
-            loss = criterion(outputs, targets)
+            loss = train_criterion(outputs, targets)
             noun_model.zero_grad()
             verb_model.zero_grad()
             adjective_model.zero_grad()
             conjunction_model.zero_grad()
             preposition_model.zero_grad()
-            decoder_model.zero_grad()
+            decoder_model_train.zero_grad()
             loss.backward()
             optimizer.step()
 
@@ -166,8 +179,11 @@ def train(learning_rate, use_visdom):
             if i % log_step == 0:
                 # graph loss and process
                 if use_visdom: loss_graph = log_graph(loss_graph, loss_val, cnn_rnn_number_epochs, epoch, i, vis)
-                print('Epoch [{}/{}], Step [{}/{}], Loss: {:.4f}'.format(epoch + 1, cnn_rnn_number_epochs, i + 1, total_step, loss_val))
-            break
+                print('Train Epoch [{}/{}], Step [{}/{}], Loss: {:.4f}'.format(epoch + 1, cnn_rnn_number_epochs, i + 1, total_step, loss_val))
+
+        decoder_model_eval.module.update_layer(train_dataset_size)
+        decoder_model_eval.load_state_dict(decoder_model_train.state_dict())
+        decoder_model_eval.module.update_layer(validation_dataset_size)
 
         # prep model for validation
         noun_model.eval()
@@ -175,20 +191,38 @@ def train(learning_rate, use_visdom):
         adjective_model.eval()
         conjunction_model.eval()
         preposition_model.eval()
-        decoder_model.eval()
+        decoder_model_train.eval()
+        decoder_model_eval.eval()
         for i, (images, captions, lengths) in enumerate(eval_dataset_loader):
+
+            # set tensor to GPU
+            images = images.to(device, non_blocking = True)
+            captions = captions.to(device, non_blocking = True)
+
+            # create minibatch
+            targets = pack_padded_sequence(captions, lengths, batch_first=True)[0]
+
+            # detect image and caption
             noun_features = noun_model(images)
             verb_features = verb_model(images)
             adjective_features = adjective_model(images)
             conjunction_features = conjunction_model(images)
             preposition_features = preposition_model(images)
             features = combine_vertically(noun_features, verb_features, adjective_features, conjunction_features, preposition_features)
-            features = features.to(device, non_blocking=True)
-            outputs = decoder_model(features, captions, lengths)
-            loss = criterion(outputs, targets)
+            features = features.to(device, non_blocking = True)
+            captions.cuda(device)
+            features.cuda(device)
+            decoder_model_eval.cuda(device)
+            outputs = decoder_model_eval(features, captions, lengths)
+            loss = validation_criterion(outputs, targets)
+            loss_val = loss.item()
 
             # record validation loss
-            valid_losses.append(loss.item())
+            valid_losses.append(loss_val)
+
+            # check for every step
+            if i % log_step == 0:
+                print('Eval Epoch [{}/{}], Step [{}/{}], Loss: {:.4f}'.format(epoch + 1, cnn_rnn_number_epochs, i + 1, len(eval_dataset_loader), loss_val))
 
         # print training/validation statistics
         # calculate average loss over an epoch
@@ -196,7 +230,11 @@ def train(learning_rate, use_visdom):
         valid_loss = np.average(valid_losses)
         avg_train_losses.append(train_loss)
         avg_valid_losses.append(valid_loss)
-        print('Result [{}/{}], Train {:.5f}, Valid: {:.5f}'.format(epoch + 1, cnn_rnn_number_epochs, train_loss, valid_loss))
+        # print('Result [{}/{}], Train {:.5f}, Valid: {:.5f}'.format(epoch + 1, cnn_rnn_number_epochs, train_loss, valid_loss))
+        aa = 0
+        for k,m in zip(avg_train_losses, avg_valid_losses):
+            print('Result [{}/{}], Train {:.5f}, Valid: {:.5f}'.format(aa + 1, cnn_rnn_number_epochs, k, m))
+            aa += 1
 
         # clear lists to track next epoch
         train_losses = []
@@ -204,22 +242,29 @@ def train(learning_rate, use_visdom):
 
         # early_stopping needs the validation loss to check if it has decresed,
         # and if it has, it will make a checkpoint of the current model
-        early_stopping(valid_loss, decoder_model)
+        early_stopping(valid_loss)
+
+        # ============ SAVE Untill here!
+
+        # graph losses
+        graph_early_stop(train_loss, valid_loss)
+
+        # save trained model
+        save_model(noun_model, model_file["noun"]["train"])
+        save_model(verb_model, model_file["verb"]["train"])
+        save_model(adjective_model, model_file["adjective"]["train"])
+        save_model(conjunction_model, model_file["conjunction"]["train"])
+        save_model(preposition_model, model_file["preposition"]["train"])
+        save_model(decoder_model_train, model_file["decoder"]["train"])
+
+        # ============ SAVE Untill here!
 
         if early_stopping.early_stop:
-            print("Early stopping!!!!!!!!!!!!!!!!!!!!!!")
-            print("Early stopping!!!!!!!!!!!!!!!!!!!!!!")
-            print("Early stopping!!!!!!!!!!!!!!!!!!!!!!")
-            print("Early stopping!!!!!!!!!!!!!!!!!!!!!!")
+            print("Early stopping !!!!!!!!!!!!!!!!!!!!!!!")
             break
 
-        break
-
-    # graph losses
-    graph_early_stop(train_loss, valid_loss)
-
     # return trained model
-    return noun_model, verb_model, adjective_model, conjunction_model, preposition_model, decoder_model
+    return noun_model, verb_model, adjective_model, conjunction_model, preposition_model, decoder_model_train
 
 
 def log_graph(loss_graph, loss_val, number_epochs, epoch, i, vis):
@@ -244,6 +289,9 @@ def load_model(pos, embed_size, device, new_embed_size):
 
 
 def graph_early_stop(train_loss, valid_loss):
+    with open(os.path.join(base_path, "result", "early_stop.bin"), "wb") as f:
+        pickle.dump({  "train_loss" : train_loss, "valid_loss" : valid_loss  }, f)
+
     # (visdom.Visdom()).line(X=np.array([i]), Y=np.array([loss_val]), name="Epoch {0}".format(epoch), opts=dict(
     #     title="Early Stop Result",
     #     legend=["Training Loss", "Validation Loss"],
@@ -251,24 +299,24 @@ def graph_early_stop(train_loss, valid_loss):
     #     ylabel='Loss'
     # ))
 
-    # visualize the loss as the network trained
-    fig = plt.figure(figsize=(10, 8))
-    plt.plot(range(1, len(train_loss) + 1), train_loss, label='Training Loss')
-    plt.plot(range(1, len(valid_loss) + 1), valid_loss, label='Validation Loss')
-
-    # find position of lowest validation loss
-    minposs = valid_loss.index(min(valid_loss)) + 1
-    plt.axvline(minposs, linestyle='--', color='r', label='Early Stopping Checkpoint')
-
-    plt.xlabel('epochs')
-    plt.ylabel('loss')
-    plt.ylim(0, 0.5)  # consistent scale
-    plt.xlim(0, len(train_loss) + 1)  # consistent scale
-    plt.grid(True)
-    plt.legend()
-    plt.tight_layout()
-    # plt.show()
-    fig.savefig('loss_plot.png', bbox_inches='tight')
+    # # visualize the loss as the network trained
+    # fig = plt.figure(figsize=(10, 8))
+    # plt.plot(range(1, len(train_loss) + 1), train_loss, label='Training Loss')
+    # plt.plot(range(1, len(valid_loss) + 1), valid_loss, label='Validation Loss')
+    #
+    # # find position of lowest validation loss
+    # minposs = valid_loss.index(min(valid_loss)) + 1
+    # plt.axvline(minposs, linestyle='--', color='r', label='Early Stopping Checkpoint')
+    #
+    # plt.xlabel('epochs')
+    # plt.ylabel('loss')
+    # plt.ylim(0, 0.5)  # consistent scale
+    # plt.xlim(0, len(train_loss) + 1)  # consistent scale
+    # plt.grid(True)
+    # plt.legend()
+    # plt.tight_layout()
+    # # plt.show()
+    # fig.savefig('loss_plot.png', bbox_inches='tight')
 
 
 if __name__ == "__main__":
@@ -283,12 +331,4 @@ if __name__ == "__main__":
     for lr in learning_rate:
 
         # train PoS CNN - RNN
-        noun, verb, adjective, conjunction, preposition, decoder = train(lr, False)
-
-        # save trained model
-        save_model(noun, model_file["noun"]["train"])
-        save_model(verb, model_file["verb"]["train"])
-        save_model(adjective, model_file["adjective"]["train"])
-        save_model(conjunction, model_file["conjunction"]["train"])
-        save_model(preposition, model_file["preposition"]["train"])
-        save_model(decoder, model_file["decoder"]["train"])
+        train(lr, False)

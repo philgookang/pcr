@@ -7,6 +7,8 @@ class Decoder(nn.Module):
     def __init__(self, embed_size, hidden_size, vocab_size, num_layers, max_seq_length=20):
         """Set the hyper-parameters and build the layers."""
         super(Decoder, self).__init__()
+        self.embed_size = embed_size
+        self.hidden_size = hidden_size
         self.embed = nn.Embedding(vocab_size, embed_size)
         self.lstm = nn.LSTM(embed_size, hidden_size, num_layers, batch_first=True)
         self.linear = nn.Linear(hidden_size, vocab_size)
@@ -28,6 +30,10 @@ class Decoder(nn.Module):
         outputs = self.linear(hiddens[0])
 
         return outputs
+
+    def update_layer(self, vocab_size):
+        self.embed = nn.Embedding(vocab_size, self.embed_size)
+        self.linear = nn.Linear(self.hidden_size, vocab_size)
 
     def sample(self, features, states=None):
         """Generate captions for given image features using greedy search."""

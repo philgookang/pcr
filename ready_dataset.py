@@ -33,6 +33,7 @@ print("load complete dataset")
 # complete_dataset
 train_set = { }
 validation_set = { }
+test_set = { }
 
 # this list holds { "filename" : {"id", "caption"} }
 for item in tqdm(train_coco["annotations"]):
@@ -83,6 +84,7 @@ train_dataset = {
 }
 
 counter = Counter()
+train_set, test_set = prase_data_by_ratio(train_set, 5000)   # sperate the testset!
 
 for filename in tqdm(train_set):
     item = train_set[filename]
@@ -139,7 +141,7 @@ save_dataset(dataset_file["validation"], validation_dataset)
 
 #######
 
-save_dataset(dataset_file["test"], validation_set)
+save_dataset(dataset_file["test"], test_set)
 
 #######
 

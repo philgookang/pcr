@@ -7,3 +7,6 @@ coco_caption_path_validation = os.path.join(coco_data_path, "annotations", "capt
 coco_train_image_path = os.path.join(coco_data_path, "re_train2017", "")
 coco_validation_image_path = os.path.join(coco_data_path, "re_val2017", "")
 coco_pretrain_image_path = os.path.join(coco_data_path, "re_train2017", "")
+
+
+train_early_stop = os.path.join(base_path, "result", "early_stop.bin")

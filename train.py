@@ -27,7 +27,7 @@ def train(learning_rate, use_visdom):
     # train dataset
     train_dataset = load_dataset(dataset_file["train"])
 
-    # train dataset
+    # validation dataset
     validation_dataset = load_dataset(dataset_file["validation"])
 
     # train dataset size
@@ -276,7 +276,7 @@ def log_graph(loss_graph, loss_val, number_epochs, epoch, i, vis):
 
 
 def load_model(pos, embed_size, device, new_embed_size):
-    features = torch.load("result/model/" + model_file[pos]["pretrain"])
+    features = torch.load(model_save_path + model_file[pos]["pretrain"])
     cnn_model = Encoder(embed_size = embed_size)
     cnn_model = nn.DataParallel(cnn_model)
     cnn_model.to(device, non_blocking=True)

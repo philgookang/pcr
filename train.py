@@ -246,9 +246,6 @@ def train(learning_rate, use_visdom):
 
         # ============ SAVE Untill here!
 
-        # graph losses
-        graph_early_stop(train_loss, valid_loss)
-
         # save trained model
         save_model(noun_model, model_file["noun"]["train"])
         save_model(verb_model, model_file["verb"]["train"])
@@ -286,37 +283,6 @@ def load_model(pos, embed_size, device, new_embed_size):
     cnn_model.load_state_dict(features)
     cnn_model.module.update_layer(new_embed_size)
     return cnn_model
-
-
-def graph_early_stop(train_loss, valid_loss):
-    with open(train_early_stop, "wb") as f:
-        pickle.dump({  "train_loss" : train_loss, "valid_loss" : valid_loss  }, f)
-
-    # (visdom.Visdom()).line(X=np.array([i]), Y=np.array([loss_val]), name="Epoch {0}".format(epoch), opts=dict(
-    #     title="Early Stop Result",
-    #     legend=["Training Loss", "Validation Loss"],
-    #     xlabel='Epoch',
-    #     ylabel='Loss'
-    # ))
-
-    # # visualize the loss as the network trained
-    # fig = plt.figure(figsize=(10, 8))
-    # plt.plot(range(1, len(train_loss) + 1), train_loss, label='Training Loss')
-    # plt.plot(range(1, len(valid_loss) + 1), valid_loss, label='Validation Loss')
-    #
-    # # find position of lowest validation loss
-    # minposs = valid_loss.index(min(valid_loss)) + 1
-    # plt.axvline(minposs, linestyle='--', color='r', label='Early Stopping Checkpoint')
-    #
-    # plt.xlabel('epochs')
-    # plt.ylabel('loss')
-    # plt.ylim(0, 0.5)  # consistent scale
-    # plt.xlim(0, len(train_loss) + 1)  # consistent scale
-    # plt.grid(True)
-    # plt.legend()
-    # plt.tight_layout()
-    # # plt.show()
-    # fig.savefig('loss_plot.png', bbox_inches='tight')
 
 
 if __name__ == "__main__":

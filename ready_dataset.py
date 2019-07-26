@@ -139,6 +139,10 @@ save_dataset(dataset_file["validation"], validation_dataset)
 
 #######
 
+save_dataset(dataset_file["test"], validation_set)
+
+#######
+
 print("PoS", "Corpus", "Data")
 for k in pretrain_dataset:
     print(k, len(pretrain_dataset[k]["corpus"]), len(pretrain_dataset[k]["data"]))

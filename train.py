@@ -289,7 +289,7 @@ def load_model(pos, embed_size, device, new_embed_size):
 
 
 def graph_early_stop(train_loss, valid_loss):
-    with open(os.path.join(base_path, "result", "early_stop.bin"), "wb") as f:
+    with open(train_early_stop, "wb") as f:
         pickle.dump({  "train_loss" : train_loss, "valid_loss" : valid_loss  }, f)
 
     # (visdom.Visdom()).line(X=np.array([i]), Y=np.array([loss_val]), name="Epoch {0}".format(epoch), opts=dict(

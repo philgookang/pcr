@@ -14,5 +14,6 @@ dataset_file = {
     "pretrain"          : "cnn_pretrain_dataset.pkl",
     "train"             : "cnn_rnn_train_dataset.pkl",
     "test"              : "cnn_rnn_test_dataset.pkl",
-    "validation"        : "cnn_rnn_validation_dataset.pkl"
+    "validation"        : "cnn_rnn_validation_dataset.pkl",
+    "result"            : "cnn_rnn_caption_result.pkl"
 }

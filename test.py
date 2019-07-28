@@ -13,6 +13,8 @@ import warnings
 import torch.nn as nn
 from torchvision import transforms
 
+from score import run_score
+
 class Pcr():
 
     def __init__(self, train_dataset):
@@ -148,9 +150,9 @@ if __name__ == "__main__":
 
     # save result to file
     with open(os.path.join(base_path, "result", dataset_file["result"]), "wb") as f:
-        pickle.dump(test_dataset, f)
+       pickle.dump(test_dataset, f)
 
-
-
+    # run scoring
+    run_score(test_dataset)
 
     #

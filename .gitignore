@@ -8,6 +8,7 @@ __pycache__/
 
 result/dataset/*.pkl
 result/model/*.pt
+result/model/*.pkl
 result/early_stop.bin
 evaluation/spice/cache/*.mdb
 evaluation/spice/tmp/*

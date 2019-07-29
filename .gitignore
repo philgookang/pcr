@@ -10,6 +10,8 @@ result/dataset/*.pkl
 result/model/*.pt
 result/early_stop.bin
 
+evaluation/spice/*.jar
+
 # Distribution / packaging
 .Python
 build/

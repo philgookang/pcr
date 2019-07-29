@@ -28,8 +28,18 @@ def run_score(dataset):
     rouge = Rouge()
     rscore = rouge.compute(dataset)
 
+    print("Scores")
+    print("BLEU: ", bscore)
+    print("CIDEr: ", cscore)
+    print("ROUGE: ", rscore)
+
+    print("")
+    print("")
+    print("")
+    print("")
+
     # get spice score
-    spice = Spice
+    spice = Spice()
     sscore = spice.compute(dataset)
 
     print("Scores")

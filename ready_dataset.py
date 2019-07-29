@@ -141,6 +141,12 @@ save_dataset(dataset_file["validation"], validation_dataset)
 
 #######
 
+for i in range(len(test_set)):
+    tmp_lst = []
+    for ref in test_set[i]["reference"]:
+        tmp_lst.append(nltk.tokenize.word_tokenize(ref.lower()))
+    test_set[i]["reference"] = tmp_lst
+
 save_dataset(dataset_file["test"], test_set)
 
 #######

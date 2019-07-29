@@ -35,7 +35,7 @@ train_set = { }
 validation_set = { }
 test_set = { }
 
-# this list holds { "filename" : {"id", "caption"} }
+# this list holds { "filename" : {"id" : [], "caption" : []} }
 for item in tqdm(train_coco["annotations"]):
 
     # retrieve item information
@@ -141,11 +141,11 @@ save_dataset(dataset_file["validation"], validation_dataset)
 
 #######
 
-for i in range(len(test_set)):
+for filename in test_set:
     tmp_lst = []
-    for ref in test_set[i]["reference"]:
+    for ref in test_set[filename]["caption"]:
         tmp_lst.append(nltk.tokenize.word_tokenize(ref.lower()))
-    test_set[i]["reference"] = tmp_lst
+    test_set[filename]["caption"] = tmp_lst
 
 save_dataset(dataset_file["test"], test_set)
 

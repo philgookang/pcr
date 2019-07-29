@@ -1,10 +1,10 @@
 from config import *
 from helper import *
 from evaluation import *
+from evaluation.spice.spice import Spice
 
 import pickle
 import sys
-
 
 def run_score_on_file(filename):
 
@@ -15,6 +15,7 @@ def run_score_on_file(filename):
 
 
 def run_score(dataset):
+
     # get bleu score
     bleu = Bleu()
     bscore = bleu.compute(dataset)
@@ -27,10 +28,15 @@ def run_score(dataset):
     rouge = Rouge()
     rscore = rouge.compute(dataset)
 
+    # get spice score
+    spice = Spice
+    sscore = spice.compute(dataset)
+
     print("Scores")
     print("BLEU: ", bscore)
     print("CIDEr: ", cscore)
     print("ROUGE: ", rscore)
+    print("SPICE: ", sscore)
 
 
 if __name__ == "__main__":

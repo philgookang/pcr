@@ -7,6 +7,7 @@ import json
 import numpy as np
 import ast
 import tempfile
+from tqdm import tqdm
 
 # Assumes spice.jar is in the same directory as spice.py.  Change as needed.
 SPICE_JAR = 'spice-1.0.jar'
@@ -30,13 +31,23 @@ class Spice:
         reference = {}
         hypothesis = {}
         num = 0
-        for item in dataset:
-            for ref in item["reference"]
-                reference[num] = [" ".join(ref)]
-                hypothesis[num] = [" ".join(item["caption"])]
+        score = 0
+        total = 0
+        pbar = tqdm(dataset)
+        for item in pbar:
+            for ref in item["reference"]:
+                reference[num] = [ref]
+                hypothesis[num] = [" ".join(item["hypothesis"])]
                 num += 1
+            score = self.compute_score(reference, hypothesis)[0]
+            total += 1
 
-        return self.compute_score(reference, hypothesis)
+            pbar.set_description("SPICE: {0}".format(score / total))
+
+        if total == 0:
+            return 0
+
+        return score / total
 
     def compute_score(self, gts, res):
         assert (sorted(gts.keys()) == sorted(res.keys()))
@@ -80,8 +91,7 @@ class Spice:
                      '-subset',
                      '-silent'
                      ]
-        subprocess.check_call(spice_cmd,
-                              cwd=os.path.dirname(os.path.abspath(__file__)))
+        subprocess.check_call(spice_cmd, cwd=os.path.dirname(os.path.abspath(__file__)))
 
         # Read and process results
         with open(out_file.name) as data_file:

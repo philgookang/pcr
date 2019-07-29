@@ -15,6 +15,7 @@ import torch.nn as nn
 from torchvision import transforms
 
 from score import run_score
+from tqdm import tqdm
 
 class Pcr():
 
@@ -145,15 +146,38 @@ if __name__ == "__main__":
     # create PCR
     pcr = Pcr(train_dataset)
 
+    # result holder
+    result_holder = []
+
+    # skip count
+    skip_count = 0
+
+    pbar = tqdm(test_dataset)
+
     # create hypothesis
-    for filename in test_dataset:
-        test_dataset[filename]["hypothesis"] = pcr.testcase(coco_test_image_path + filename)
+    for filename in pbar:
+        try:
+            hypothesis = pcr.testcase(coco_test_image_path + filename)
+            result_holder.append({
+                "reference" : test_dataset[filename]["caption"],
+                "hypothesis" : hypothesis
+            })
+            pbar.set_description( filename + " " + ' '.join(hypothesis) )
+            # print(filename, ' '.join(hypothesis) )
+        except:
+            skip_count += 1
 
     # save result to file
     with open(os.path.join(base_path, "result", dataset_file["result"]), "wb") as f:
-       pickle.dump(test_dataset, f)
+       pickle.dump(result_holder, f)
+
+    print("skip_count:", skip_count)
 
     # run scoring
     run_score(test_dataset)
+
+
+
+
 
     #

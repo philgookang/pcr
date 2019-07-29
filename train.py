@@ -297,4 +297,4 @@ if __name__ == "__main__":
     for lr in learning_rate:
 
         # train PoS CNN - RNN
-        train(lr, False)
+        train(lr, True)

@@ -39,14 +39,14 @@ def run_score(dataset):
     print("")
 
     # get spice score
-    spice = Spice()
-    sscore = spice.compute(dataset)
+    # spice = Spice()
+    # sscore = spice.compute(dataset)
 
     print("Scores")
     print("BLEU: ", bscore)
     print("CIDEr: ", cscore)
     print("ROUGE: ", rscore)
-    print("SPICE: ", sscore)
+    # print("SPICE: ", sscore)
 
 
 if __name__ == "__main__":

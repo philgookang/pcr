@@ -22,6 +22,7 @@ from config.coco import coco_test_image_path
 from config.coco import coco_pretrain_image_path
 from config.coco import train_early_stop
 from config.coco import model_save_path
+from config.coco import image_with_caption
 
 from config.rnn import decoder_hidden_size
 from config.rnn import lstm_number_of_layers

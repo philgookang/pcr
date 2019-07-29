@@ -1,10 +1,10 @@
 
 
 # number of epochs
-cnn_rnn_number_epochs = 5
+cnn_rnn_number_epochs = 1000
 
+# size of dataset
 validation_and_test_dataset_size = 5000
-
 
 # minimun count required
 threshold = 1

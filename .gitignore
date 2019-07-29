@@ -9,6 +9,8 @@ __pycache__/
 result/dataset/*.pkl
 result/model/*.pt
 result/early_stop.bin
+evaluation/spice/cache/*.mdb
+evaluation/spice/tmp/*
 
 evaluation/spice/*.jar
 

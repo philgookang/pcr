@@ -174,7 +174,7 @@ if __name__ == "__main__":
     print("skip_count:", skip_count)
 
     # run scoring
-    run_score(test_dataset)
+    run_score(result_holder)
 
 
 

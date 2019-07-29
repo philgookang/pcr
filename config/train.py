@@ -1,7 +1,7 @@
 
 
 # number of epochs
-cnn_rnn_number_epochs = 1000
+cnn_rnn_number_epochs = 5
 
 validation_and_test_dataset_size = 5000
 
@@ -18,7 +18,7 @@ image_crop_size = 224
 number_of_workers = 32
 
 # number of epochs
-pretrain_number_epochs = 6
+pretrain_number_epochs = 7
 
 # size of each training cycle
 pretrain_batch_size = 124

@@ -25,7 +25,7 @@ class Spice:
         except:
             return np.nan
 
-    def compute_score(self, dataset):
+    def compute(self, dataset):
 
         reference = {}
         hypothesis = {}
@@ -38,7 +38,7 @@ class Spice:
 
         return self.compute_score(reference, hypothesis)
 
-    def compute(self, gts, res):
+    def compute_score(self, gts, res):
         assert (sorted(gts.keys()) == sorted(res.keys()))
         imgIds = sorted(gts.keys())
 

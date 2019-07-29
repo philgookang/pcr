@@ -1,13 +1,14 @@
 import os
 
 base_path = os.getcwd()
+coco_dataset_year = '2017'
 coco_data_path = os.path.join(base_path, "..", "data", "")
-coco_caption_path_train = os.path.join(coco_data_path, "annotations", "captions_train2017.json")
-coco_caption_path_validation = os.path.join(coco_data_path, "annotations", "captions_val2017.json")
-coco_train_image_path = os.path.join(coco_data_path, "re_train2017", "")
-coco_validation_image_path = os.path.join(coco_data_path, "re_val2017", "")
-coco_test_image_path = os.path.join(coco_data_path, "re_train2017", "")
-coco_pretrain_image_path = os.path.join(coco_data_path, "re_train2017", "")
+coco_caption_path_train = os.path.join(coco_data_path, "annotations", "captions_train{0}.json".format(coco_dataset_year))
+coco_caption_path_validation = os.path.join(coco_data_path, "annotations", "captions_val{0}.json".format(coco_dataset_year))
+coco_train_image_path = os.path.join(coco_data_path, "re_train{0}".format(coco_dataset_year), "")
+coco_validation_image_path = os.path.join(coco_data_path, "re_val{0}".format(coco_dataset_year), "")
+coco_test_image_path = os.path.join(coco_data_path, "re_train{0}".format(coco_dataset_year), "")
+coco_pretrain_image_path = os.path.join(coco_data_path, "re_train{0}".format(coco_dataset_year), "")
 
 
 train_early_stop = os.path.join(base_path, "result", "early_stop.bin")

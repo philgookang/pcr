@@ -152,6 +152,10 @@ if __name__ == "__main__":
     # skip count
     skip_count = 0
 
+    # create image yes or no
+    should_create_image = True
+
+    # the loading bar
     pbar = tqdm(test_dataset)
 
     # create hypothesis
@@ -163,6 +167,18 @@ if __name__ == "__main__":
                 "hypothesis" : hypothesis
             })
             pbar.set_description( filename + " " + ' '.join(hypothesis) )
+
+            # create image with file and caption
+            if should_create_image:
+                lst = []
+                lst.append("Reference")
+                for cap in test_dataset[filename]["caption"]:
+                    lst.append(' '.join(cap))
+                lst.append("")
+                lst.append("Hypothesis")
+                lst.append(' '.join(hypothesis))
+
+                create_image_caption(coco_test_image_path + filename, image_with_caption + filename)
             # print(filename, ' '.join(hypothesis) )
         except:
             skip_count += 1

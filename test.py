@@ -153,7 +153,7 @@ if __name__ == "__main__":
     skip_count = 0
 
     # create image yes or no
-    should_create_image = True
+    should_create_image = False
 
     # the loading bar
     pbar = tqdm(test_dataset)
@@ -170,30 +170,19 @@ if __name__ == "__main__":
 
             # create image with file and caption
             if should_create_image:
-                lst = []
-                lst.append("Reference")
-                for cap in test_dataset[filename]["caption"]:
-                    lst.append(' '.join(cap))
-                lst.append("")
-                lst.append("Hypothesis")
+                lst = ["Reference"]
+                lst.extend([' '.join(cap) for cap in test_dataset[filename]["caption"]])
+                lst.extend(["", "Hypothesis"])
                 lst.append(' '.join(hypothesis))
-
-                create_image_caption(coco_test_image_path + filename, image_with_caption + filename)
-            # print(filename, ' '.join(hypothesis) )
+                create_image_caption(coco_test_image_path_original + filename, image_with_caption + filename, lst)
         except:
             skip_count += 1
 
-    # save result to file
+     # save result to file
     with open(os.path.join(base_path, "result", dataset_file["result"]), "wb") as f:
-       pickle.dump(result_holder, f)
+        pickle.dump(result_holder, f)
 
     print("skip_count:", skip_count)
 
     # run scoring
     run_score(result_holder)
-
-
-
-
-
-    #

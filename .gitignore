@@ -6,6 +6,7 @@ __pycache__/
 # C extensions
 *.so
 
+result/cnn_rnn_caption_result.pkl
 result/dataset/*.pkl
 result/model/*.pt
 result/model/*.pkl

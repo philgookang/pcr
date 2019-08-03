@@ -13,6 +13,7 @@ result/model/*.pkl
 result/early_stop.bin
 evaluation/spice/cache/*.mdb
 evaluation/spice/tmp/*
+result/image_with_caption/*.jpg
 
 evaluation/spice/*.jar
 

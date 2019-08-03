@@ -23,8 +23,8 @@ def create_image_caption(original, target, lst):
     w, h = img.size
     img = img.crop((0,0,w + 900,h))
     draw = ImageDraw.Draw(img)
-    font = ImageFont.truetype(font, 24)
+    font = ImageFont.truetype(font, 20)
 #     text_w, text_h = draw.textsize(lst[0]) #, font
     for no,txt in enumerate(lst):
-        draw.text((w + 15, 5 + (40*no)), txt, (255,255,255), font=font)
+        draw.text((w + 10, 2 + (37*no)), txt, (255,255,255), font=font)
     img.save(target)

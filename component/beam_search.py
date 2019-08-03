@@ -18,7 +18,7 @@ class BeamSearch:
 
         for i,node_list in enumerate(self.new_phrases):
             probability = 1
-            for nn in node_list: probability *= nn.probability
+            for node in node_list: probability *= node.probability
             tmp.append((i, probability))
 
         tmp_sorted = sorted(tmp, key=lambda tup: tup[1], reverse = True)

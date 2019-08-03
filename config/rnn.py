@@ -10,4 +10,4 @@ lstm_number_of_layers = 3
 generation_method = "beam_search"
 
 # number of beam search K
-beam_search_k = 20
+beam_search_k = 3

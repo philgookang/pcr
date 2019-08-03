@@ -27,3 +27,5 @@ from config.coco import image_with_caption
 
 from config.rnn import decoder_hidden_size
 from config.rnn import lstm_number_of_layers
+from config.rnn import beam_search_k
+from config.rnn import generation_method

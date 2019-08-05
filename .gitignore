@@ -18,6 +18,23 @@ result/image_with_caption/*.jpg
 result/heatmap/*.png
 result/heatmap/*.jpg
 
+result/heatmap/cnn/noun/*.png
+result/heatmap/cnn/noun/*.jpg
+result/heatmap/cnn/verb/*.png
+result/heatmap/cnn/verb/*.jpg
+result/heatmap/cnn/pronoun/*.png
+result/heatmap/cnn/pronoun/*.jpg
+result/heatmap/cnn/adjective/*.png
+result/heatmap/cnn/adjective/*.jpg
+result/heatmap/cnn/adverb/*.png
+result/heatmap/cnn/adverb/*.jpg
+result/heatmap/cnn/conjunction/*.png
+result/heatmap/cnn/conjunction/*.jpg
+result/heatmap/cnn/preposition/*.png
+result/heatmap/cnn/preposition/*.jpg
+result/heatmap/cnn/interjection/*.png
+result/heatmap/cnn/interjection/*.jpg
+
 evaluation/spice/*.jar
 
 # Distribution / packaging

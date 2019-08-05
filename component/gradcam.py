@@ -1,7 +1,9 @@
 """
-Created on Thu Oct 26 11:06:51 2017
+This could was taken from the author below.
+It has been customized to fix my model 
 
 @author: Utku Ozbulak - github.com/utkuozbulak
+@original code: https://github.com/utkuozbulak/pytorch-cnn-visualizations
 """
 from PIL import Image
 import numpy as np

@@ -46,6 +46,12 @@ class PretrainDataset(data.Dataset):
 
         return image, label
 
+    def get(self, position):
+        return self.dataset["data"][position]
+
+    def convert_word(self, word):
+        label = self.label_encoder.transform([word])
+        return label
 
     def load_image(self, filename):
         image = Image.open(filename).convert("RGB")

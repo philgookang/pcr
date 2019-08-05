@@ -15,6 +15,9 @@ evaluation/spice/cache/*.mdb
 evaluation/spice/tmp/*
 result/image_with_caption/*.jpg
 
+result/heatmap/*.png
+result/heatmap/*.jpg
+
 evaluation/spice/*.jar
 
 # Distribution / packaging

@@ -20,6 +20,8 @@ result/image_with_caption/*.jpg
 result/heatmap/*.png
 result/heatmap/*.jpg
 
+result/verb_pos.csv
+
 result/heatmap/cnn/noun/*.png
 result/heatmap/cnn/noun/*.jpg
 result/heatmap/cnn/verb/*.png

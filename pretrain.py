@@ -81,14 +81,12 @@ def train(pos, dataset, learning_rate, use_visdom):
             images = images.to(device, non_blocking = True)
             labels = labels.to(device, non_blocking = True)
 
-            # reset gradient
-            optimizer.zero_grad()
-
             # forward propagation
             outputs = cnn_model(images)
 
             # backpropagation
             loss = criterion(outputs,  torch.max(labels, 1)[1] )
+            images.zero_grad()
             loss.backward()
             optimizer.step()
 

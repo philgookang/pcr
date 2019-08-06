@@ -19,10 +19,16 @@ from config.coco import coco_caption_path_validation
 from config.coco import coco_train_image_path
 from config.coco import coco_validation_image_path
 from config.coco import coco_test_image_path
+from config.coco import coco_test_image_path_original
 from config.coco import coco_pretrain_image_path
+from config.coco import coco_pretrain_image_path_original
 from config.coco import train_early_stop
 from config.coco import model_save_path
 from config.coco import image_with_caption
+from config.coco import heatmap_path
+from config.coco import heatmap_cnn_path
 
 from config.rnn import decoder_hidden_size
 from config.rnn import lstm_number_of_layers
+from config.rnn import beam_search_k
+from config.rnn import generation_method

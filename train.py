@@ -94,7 +94,7 @@ def train(learning_rate, use_visdom):
         batch_size=train_batch_size, shuffle=is_shuffle, num_workers=number_of_workers, collate_fn=coco_collate_fn)
 
     # Build Encoder
-    noun_model = load_model("noun", len(pretrain_dataset["noun"]["corpus"]), device, embed_size)
+    noun_model = load_model("noun", len(pretrain_dataset["noun"]["corpus"]), device, embed_size, True)
     verb_model = load_model("verb", len(pretrain_dataset["verb"]["corpus"]), device, embed_size)
     adjective_model = load_model("adjective", len(pretrain_dataset["adjective"]["corpus"]), device, embed_size)
     conjunction_model = load_model("conjunction", len(pretrain_dataset["conjunction"]["corpus"]), device, embed_size)
@@ -275,12 +275,13 @@ def log_graph(loss_graph, loss_val, number_epochs, epoch, i, vis):
     return loss_graph
 
 
-def load_model(pos, embed_size, device, new_embed_size):
+def load_model(pos, embed_size, device, new_embed_size, skip = False):
     features = torch.load(model_save_path + model_file[pos]["pretrain"])
     cnn_model = Encoder(embed_size = embed_size)
     cnn_model = nn.DataParallel(cnn_model)
     cnn_model.to(device, non_blocking=True)
-    cnn_model.load_state_dict(features)
+    if skip == False:
+        cnn_model.load_state_dict(features)
     cnn_model.module.update_layer(new_embed_size)
     return cnn_model
 

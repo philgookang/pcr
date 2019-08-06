@@ -119,20 +119,24 @@ class Pcr():
         # send features to GPU
         features = features.to(self.device, non_blocking = True)
 
-        # decoder
-        sampled_ids = self.rnn_model.module.sample(features)
-        sampled_ids = sampled_ids[0].cpu().numpy()
+        if generation_method == "sample":
 
-        # # reverse label encoding
-        sampled_caption = []
-        for word_id in sampled_ids:
-            inverted_label = self.label_encoder.inverse_transform([word_id])
-            word = inverted_label[0]
-            sampled_caption.append(word)
-            if word == '<end>':
-                break
+            # decoder
+            sampled_ids = self.rnn_model.module.sample(features)
+            sampled_ids = sampled_ids[0].cpu().numpy()
 
-        return sampled_caption[1:-1]
+            # # reverse label encoding
+            sampled_caption = []
+            for word_id in sampled_ids:
+                inverted_label = self.label_encoder.inverse_transform([word_id])
+                word = inverted_label[0]
+                sampled_caption.append(word)
+                if word == '<end>':
+                    break
+
+            return sampled_caption[1:-1]
+        elif generation_method == "beam_search":
+            return self.rnn_model.module.beam(features, self.label_encoder, beam_search_k)
 
 
 if __name__ == "__main__":
@@ -162,38 +166,29 @@ if __name__ == "__main__":
     for filename in pbar:
         try:
             hypothesis = pcr.testcase(coco_test_image_path + filename)
+
             result_holder.append({
                 "reference" : test_dataset[filename]["caption"],
                 "hypothesis" : hypothesis
             })
+
             pbar.set_description( filename + " " + ' '.join(hypothesis) )
 
             # create image with file and caption
             if should_create_image:
-                lst = []
-                lst.append("Reference")
-                for cap in test_dataset[filename]["caption"]:
-                    lst.append(' '.join(cap))
-                lst.append("")
-                lst.append("Hypothesis")
+                lst = ["Reference"]
+                lst.extend([' '.join(cap) for cap in test_dataset[filename]["caption"]])
+                lst.extend(["", "Hypothesis"])
                 lst.append(' '.join(hypothesis))
-
-                create_image_caption(coco_test_image_path + filename, image_with_caption + filename)
-            # print(filename, ' '.join(hypothesis) )
+                create_image_caption(coco_test_image_path_original + filename, image_with_caption + filename, lst)
         except:
             skip_count += 1
 
-    # save result to file
+     # save result to file
     with open(os.path.join(base_path, "result", dataset_file["result"]), "wb") as f:
-       pickle.dump(result_holder, f)
+        pickle.dump(result_holder, f)
 
     print("skip_count:", skip_count)
 
     # run scoring
     run_score(result_holder)
-
-
-
-
-
-    #

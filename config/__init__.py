@@ -6,6 +6,7 @@ from config.config_nltk import nltk_to_pos
 
 from config.config_model import cnn_output_size
 from config.config_model import cnn_output_combine_methods
+from config.config_model import use_bi_direction_lstm
 from config.config_model import rnn_embed_size
 from config.config_model import rnn_lstm_hidden_size
 from config.config_model import rnn_lstm_number_of_layers

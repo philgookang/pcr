@@ -31,10 +31,6 @@ class Pcr():
         # image preprocessing
         self.transform = transforms.Compose([transforms.ToTensor(), transforms.Normalize((0.485, 0.456, 0.406), (0.229, 0.224, 0.225))])
 
-        # input size
-        # output size of CNN and input size of RNN
-        self.embed_size = 256
-
         # load encoder
         with warnings.catch_warnings():
             warnings.simplefilter("ignore")
@@ -72,8 +68,8 @@ class Pcr():
 
 
     def load_cnn_model(self, pos):
-        features = torch.load(model_save_path + model_file[pos]["train"])
-        cnn_model = Encoder(embed_size = self.embed_size)
+        features = torch.load(os.path.join(RESULT_MODEL_PATH, model_file[pos]["train"]))
+        cnn_model = Encoder(embed_size = cnn_output_size)
         cnn_model = nn.DataParallel(cnn_model)
         cnn_model.to(self.device, non_blocking=True)
         cnn_model.load_state_dict(features)
@@ -82,8 +78,8 @@ class Pcr():
 
 
     def load_rnn_model(self, train_output_size):
-        features = torch.load(model_save_path + model_file["decoder"]["train"])
-        decoder_model = Decoder( (self.embed_size * 5), decoder_hidden_size, train_output_size, lstm_number_of_layers)
+        features = torch.load(os.path.join(RESULT_MODEL_PATH, model_file["decoder"]["train"]))
+        decoder_model = Decoder( rnn_embed_size, rnn_lstm_hidden_size, train_output_size, rnn_lstm_number_of_layers)
         decoder_model = nn.DataParallel(decoder_model, device_ids = [0])
         decoder_model.to(self.device, non_blocking=True)
         decoder_model.load_state_dict(features)
@@ -95,6 +91,7 @@ class Pcr():
         image  = Image.open(filename_with_full_path)
         image = image.resize([224, 224], Image.LANCZOS)
         image = self.transform(image).unsqueeze(0)
+        image = image.to(self.device, non_blocking = True)
         return image
 
 
@@ -103,23 +100,15 @@ class Pcr():
         # load image
         image = self.load_image_file(image_file_full_path)
 
-        # send all objects to GPU
-        image = image.to(self.device, non_blocking = True)
-
         # encoder image
         noun_features           = self.noun_model(image)
         verb_features           = self.verb_model(image)
         adjective_features      = self.adjective_model(image)
         conjunction_features    = self.conjunction_model(image)
         preposition_features    = self.preposition_model(image)
+        features = combine_output(noun_features, verb_features, adjective_features, conjunction_features, preposition_features, self.device)
 
-        # combine encoder features
-        features = combine_vertically(noun_features, verb_features, adjective_features, conjunction_features, preposition_features)
-
-        # send features to GPU
-        features = features.to(self.device, non_blocking = True)
-
-        if generation_method == "sample":
+        if rnn_inference == "sample":
 
             # decoder
             sampled_ids = self.rnn_model.module.sample(features)
@@ -135,16 +124,14 @@ class Pcr():
                     break
 
             return sampled_caption[1:-1]
-        elif generation_method == "beam_search":
-            return self.rnn_model.module.beam(features, self.label_encoder, beam_search_k)
+        elif rnn_inference == "beam_search":
+            return self.rnn_model.module.beam(features, self.label_encoder, rnn_beam_search_width)
 
 
 if __name__ == "__main__":
 
-    # train dataset
+    # load test & train dataset
     train_dataset = load_dataset(dataset_file["train"])
-
-    # test dataset
     test_dataset = load_dataset(dataset_file["test"])
 
     # create PCR
@@ -157,18 +144,17 @@ if __name__ == "__main__":
     skip_count = 0
 
     # create image yes or no
-    should_create_image = True
+    should_create_image = False
 
     # the loading bar
-    pbar = tqdm(test_dataset)
-
     # create hypothesis
+    pbar = tqdm(test_dataset)
     for filename in pbar:
         try:
-            hypothesis = pcr.testcase(coco_test_image_path + filename)
+            hypothesis = pcr.testcase(os.path.join(COCO_IMAGE_PATH + filename))
 
             result_holder.append({
-                "reference" : test_dataset[filename]["caption"],
+                "reference" : test_dataset[filename],
                 "hypothesis" : hypothesis
             })
 
@@ -177,15 +163,15 @@ if __name__ == "__main__":
             # create image with file and caption
             if should_create_image:
                 lst = ["Reference"]
-                lst.extend([' '.join(cap) for cap in test_dataset[filename]["caption"]])
+                lst.extend([' '.join(cap) for cap in test_dataset[filename]])
                 lst.extend(["", "Hypothesis"])
                 lst.append(' '.join(hypothesis))
-                create_image_caption(coco_test_image_path_original + filename, image_with_caption + filename, lst)
+                create_image_caption(os.path.join(COCO_IMAGE_PATH, filename), os.path.join(RESULT_IMAGE_W_CAPTION, filename), lst)
         except:
             skip_count += 1
 
      # save result to file
-    with open(os.path.join(base_path, "result", dataset_file["result"]), "wb") as f:
+    with open(os.path.join(RESULT_ROOT, dataset_file["result"]), "wb") as f:
         pickle.dump(result_holder, f)
 
     print("skip_count:", skip_count)

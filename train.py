@@ -54,7 +54,7 @@ def train(learning_rate, use_visdom):
     preposition_model = load_model("preposition", len(pretrain_dataset["preposition"]["corpus"]), device)
 
     # Build Decoer
-    decoder_model = Decoder( rnn_embed_size, rnn_lstm_hidden_size, len(train_dataset["corpus"]), rnn_lstm_number_of_layers)
+    decoder_model = Decoder( rnn_embed_size, rnn_lstm_hidden_size, len(train_dataset["corpus"]), rnn_lstm_number_of_layers, 30, True, device)
     decoder_model = decoder_model.to(device, non_blocking = True) # send to GPU
     decoder_model = nn.DataParallel(decoder_model, device_ids = [0]) # parallelize model, change from zero to one,
 

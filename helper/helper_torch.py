@@ -1,4 +1,5 @@
 import torch
+from config import *
 
 def coco_collate_fn(data):
     # Sort a data list by caption length (descending order).
@@ -23,3 +24,13 @@ def combine_vertically(*args):
         lst.append(z.cpu().detach().numpy())
     final = torch.tensor(lst)
     return final
+
+
+def combine_output(noun_features, verb_features, adjective_features, conjunction_features, preposition_features, device):
+    features = None
+    if cnn_output_combine_methods == 1:
+        features = combine_vertically(noun_features, verb_features, adjective_features, conjunction_features, preposition_features)
+    elif cnn_output_combine_methods == 2:
+        features = ((noun_features + verb_features + adjective_features + conjunction_features + preposition_features) / 5)
+    features = features.to(device, non_blocking = True)
+    return features

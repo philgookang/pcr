@@ -9,73 +9,50 @@ from random import shuffle
 import nltk
 import pickle
 import json
+import csv
 
-# coco initalize
-with open(coco_caption_path_train) as f:
-    train_coco = json.load(f)
-
-with open(coco_caption_path_validation) as f:
-    validation_coco = json.load(f)
-
-# coco image holder
-image_holder = { }
-for item in train_coco["images"]:
-    image_holder[item["id"]] = item
-
-validation_image_holder = { }
-for item in validation_coco["images"]:
-    validation_image_holder[item["id"]] = item
-
-# ###################################################
-print("load complete dataset")
-# ###################################################
+# csv setting
+csv.register_dialect('quote_dialect', quoting=csv.QUOTE_ALL, skipinitialspace=True)
 
 # complete_dataset
-train_set = { }
-validation_set = { }
-test_set = { }
+complete_dataset = {  }   # format: { "filename" : [] }
 
-# this list holds { "filename" : {"id" : [], "caption" : []} }
-for item in tqdm(train_coco["annotations"]):
+for path in [COCO_TRAIN_ANNOTATION, COCO_VALIDATION_ANNOTATION]:
 
-    # retrieve item information
-    caption = str(item["caption"])
-    filename = image_holder[item["image_id"]]["file_name"]
+    with open(path) as f:
+        coco_annotation = json.load(f)
 
-    # check if already added
-    if filename not in train_set:
-        train_set[filename] = { "id" : [], "caption" : [], "image_id" : [] }
+    coco_image = { }
+    for item in coco_annotation["images"]:
+        coco_image[item["id"]] = item
 
-    train_set[filename]["id"].append(id)
-    train_set[filename]["caption"].append(caption)
+    for anno_item in tqdm(coco_annotation["annotations"]):
 
-# this list holds { "filename" : {"id", "caption"} }
-for item in tqdm(validation_coco["annotations"]):
+        # retrieve item information
+        caption = nltk.tokenize.word_tokenize(anno_item["caption"].lower())
+        filename = coco_image[anno_item["image_id"]]["file_name"]
 
-    # retrieve item information
-    caption = str(item["caption"])
-    caption = nltk.tokenize.word_tokenize(caption.lower())
-    filename = validation_image_holder[item["image_id"]]["file_name"]
+        # check if already added
+        if filename not in complete_dataset:
+            complete_dataset[filename] = [ ]
 
-    # check if already added
-    if filename not in validation_set:
-        validation_set[filename] = { "reference" : [] }
+        complete_dataset[filename].append(caption)
 
-    validation_set[filename]["reference"].append(caption)
+train_set, validation_set, test_set = prase_data_by_ratio(complete_dataset, validation_and_test_dataset_size)
 
-# ###################################################
-print("pretrain & train dataset")
-# ###################################################
+# ###########################################################################################
+# STRUCTURE
+# ###########################################################################################
 
 pretrain_dataset = {
-    "noun" : { "corpus" : [], "data" : [] },
-    "pronoun" : { "corpus" : [], "data" : [] },
-    "verb" : { "corpus" : [], "data" : [] },
-    "adjective" : { "corpus" : [], "data" : [] },
-    "adverb" : { "corpus" : [], "data" : [] },
-    "conjunction" : { "corpus" : [], "data" : [] },
-    "preposition" : { "corpus" : [], "data" : [] },
-    "interjection": { "corpus" : [], "data" : [] }
+    "noun" : { "corpus" : ["<unk>"], "data" : [] },
+    "pronoun" : { "corpus" : ["<unk>"], "data" : [] },
+    "verb" : { "corpus" : ["<unk>"], "data" : [] },
+    "adjective" : { "corpus" : ["<unk>"], "data" : [] },
+    "adverb" : { "corpus" : ["<unk>"], "data" : [] },
+    "conjunction" : { "corpus" : ["<unk>"], "data" : [] },
+    "preposition" : { "corpus" : ["<unk>"], "data" : [] },
+    "interjection": { "corpus" : ["<unk>"], "data" : [] }
 }
 
 train_dataset = {
@@ -83,74 +60,119 @@ train_dataset = {
     "data" : [] # { "filename" : "", "caption" : "" }
 }
 
-counter = Counter()
-train_set, test_set = prase_data_by_ratio(train_set, 5000)   # sperate the testset!
-
-for filename in tqdm(train_set):
-    item = train_set[filename]
-
-    for id, caption in tqdm(zip(item["id"], item["caption"])):
-
-        # break caption string up
-        tokens = nltk.tokenize.word_tokenize(caption.lower())
-
-        # -- Logic of pretrain CNN model
-        tokens_pos = nltk.pos_tag(tokens)
-        for word,tag in tqdm(tokens_pos):
-            for nltkpos in nltk_to_pos:
-                if tag in nltk_to_pos[nltkpos]:
-                    pretrain_dataset[nltkpos]["data"].append({ "filename"  : filename, "word" : word })
-                    if word not in pretrain_dataset[nltkpos]["corpus"]:
-                        pretrain_dataset[nltkpos]["corpus"].append(word)
-
-        # -- Logic of CNN-RNN training
-        counter.update(tokens)
-        train_dataset["data"].append({ "filename" : filename, "caption" : tokens })
-
-# loop through and check threshold
-words = [word for word, cnt in counter.items() if cnt >= threshold]
-
-# loop through words that pass threshold
-for word in words: train_dataset["corpus"].append(word)
-
-# save dataset to file
-save_dataset(dataset_file["pretrain"], pretrain_dataset)
-save_dataset(dataset_file["train"], train_dataset)
-
-
-# ###################################################
-print("validation dataset")
-# ###################################################
-
 validation_dataset = {
     "corpus" : ["<pad>", "<start>", "<end>", "<unk>"], # complete list of all the words used
     "data" : [] # { "filename" : "", "caption" : "" }
 }
 
-for filename in tqdm(validation_set):
-    for word_list in validation_set[filename]["reference"]:
-        for word in word_list:
-            if word not in validation_dataset["corpus"]:
-                validation_dataset["corpus"].append(word)
 
-        validation_dataset["data"].append({ "filename" : filename, "caption" : word_list })
+# ###########################################################################################
+# TEST
+# ###########################################################################################
+
+save_dataset(dataset_file["test"], test_set)
+
+
+# ###########################################################################################
+# VALIDATION
+# ###########################################################################################
+
+validation_skip_count = 0
+word_counter = {}
+for filename in tqdm(validation_set):
+    for sentence in validation_set[filename]:
+
+        # increase counter
+        for word in sentence:
+            word_counter[word] = (word_counter[word] + 1) if word in word_counter else 1
+
+        # add item to data
+        validation_dataset["data"].append({ "filename" : filename, "caption" : sentence })
+
+with open(RESULT_DATASET_PATH + dataset_skip_file['validation'], 'w', newline='') as csvfile:
+    spamwriter = csv.writer(csvfile, dialect='quote_dialect')
+    for word in tqdm(word_counter):
+        if word_counter[word] >= term_frequency_threshold:
+            validation_dataset["corpus"].append(word)
+        else:
+            validation_skip_count += 1
+            spamwriter.writerow([word, word_counter[word]])
 
 shuffle(validation_dataset["data"])
 
 save_dataset(dataset_file["validation"], validation_dataset)
 
-#######
+print("skip", "validation_skip_count", validation_skip_count)
 
-for filename in test_set:
-    tmp_lst = []
-    for ref in test_set[filename]["caption"]:
-        tmp_lst.append(nltk.tokenize.word_tokenize(ref.lower()))
-    test_set[filename]["caption"] = tmp_lst
 
-save_dataset(dataset_file["test"], test_set)
+# ###########################################################################################
+# TRAIN
+# ###########################################################################################
 
-#######
+train_skip_count = 0
+word_counter = {}
+for filename in tqdm(train_set):
+    for sentence in train_set[filename]:
 
-print("PoS", "Corpus", "Data")
-for k in pretrain_dataset:
-    print(k, len(pretrain_dataset[k]["corpus"]), len(pretrain_dataset[k]["data"]))
+        # increase counter
+        for word in sentence:
+            word_counter[word] = (word_counter[word] + 1) if word in word_counter else 1
+
+        # add item to data
+        train_dataset["data"].append({ "filename" : filename, "caption" : sentence })
+
+with open(RESULT_DATASET_PATH + dataset_skip_file['train'], 'w', newline='') as csvfile:
+    spamwriter = csv.writer(csvfile, dialect='quote_dialect')
+    for word in word_counter:
+        if word_counter[word] >= term_frequency_threshold:
+            train_dataset["corpus"].append(word)
+        else:
+            train_skip_count += 1
+            spamwriter.writerow([word, word_counter[word]])
+
+shuffle(train_dataset["data"])
+
+save_dataset(dataset_file["train"], train_dataset)
+
+print("skip", "train_skip_count", train_skip_count)
+
+
+# ###########################################################################################
+# PRETRAIN
+# ###########################################################################################
+
+word_counter = {"noun":{},"pronoun":{},"verb":{},"adjective":{},"adverb":{},"conjunction":{},"preposition":{},"interjection":{}}
+pos_skip_counter = {"noun":0,"pronoun":0,"verb":0,"adjective":0,"adverb":0,"conjunction":0,"preposition":0,"interjection":0}
+
+for filename in tqdm(train_set):
+    for sentence in train_set[filename]:
+        tokens_pos = nltk.pos_tag(sentence)
+        for word,tag in tokens_pos:
+            for nltkpos in nltk_to_pos:
+                if tag in nltk_to_pos[nltkpos]:
+
+                    # word count
+                    word_counter[nltkpos][word] = (word_counter[nltkpos][word] + 1) if word in word_counter[nltkpos] else 1
+
+                    # increase
+                    pretrain_dataset[nltkpos]["data"].append({ "filename" : filename, "word" : word })
+
+for pos in word_counter:
+    with open(RESULT_DATASET_PATH + dataset_skip_file[pos], 'w', newline='') as csvfile:
+        spamwriter = csv.writer(csvfile, dialect='quote_dialect')
+        for word in word_counter[pos]:
+            if word_counter[pos][word] >= term_frequency_threshold:
+                pretrain_dataset[pos]["corpus"].append(word)
+            else:
+                pos_skip_counter[pos] += 1
+                spamwriter.writerow([word, word_counter[pos][word]])
+
+for pos in pos_skip_counter:
+    print("skip", pos, pos_skip_counter[pos])
+
+save_dataset(dataset_file["pretrain"], pretrain_dataset)
+
+
+
+
+#

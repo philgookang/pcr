@@ -7,13 +7,13 @@ from component import *
 
 class Decoder(nn.Module):
 
-    def __init__(self, embed_size, hidden_size, vocab_size, num_layers, max_seq_length=30):
+    def __init__(self, input_size, hidden_size, vocab_size, num_layers, max_seq_length=30):
         """Set the hyper-parameters and build the layers."""
         super(Decoder, self).__init__()
-        self.embed_size = embed_size
+        self.input_size = input_size
         self.hidden_size = hidden_size
-        self.embed = nn.Embedding(vocab_size, embed_size)
-        self.lstm = nn.LSTM(input_size = embed_size, hidden_size = hidden_size, num_layers = num_layers, bias = True,  batch_first=True, bidirectional = False)
+        self.embed = nn.Embedding(vocab_size, input_size)
+        self.lstm = nn.LSTM(input_size = input_size, hidden_size = hidden_size, num_layers = num_layers, bias = True,  batch_first=True, bidirectional = False)
         self.linear = nn.Linear(hidden_size, vocab_size)
         self.max_seg_length = max_seq_length
 
@@ -35,7 +35,7 @@ class Decoder(nn.Module):
         return outputs
 
     def update_layer(self, vocab_size):
-        self.embed = nn.Embedding(vocab_size, self.embed_size)
+        self.embed = nn.Embedding(vocab_size, self.input_size)
         self.linear = nn.Linear(self.hidden_size, vocab_size)
 
     def sample(self, features, states = None):
@@ -47,8 +47,8 @@ class Decoder(nn.Module):
             outputs = self.linear(hiddens.squeeze(1))  # outputs:  (batch_size, vocab_size)
             _, predicted = outputs.max(1)  # predicted: (batch_size)
             sampled_ids.append(predicted)
-            inputs = self.embed(predicted)  # inputs: (batch_size, embed_size)
-            inputs = inputs.unsqueeze(1)  # inputs: (batch_size, 1, embed_size)
+            inputs = self.embed(predicted)  # inputs: (batch_size, input_size)
+            inputs = inputs.unsqueeze(1)  # inputs: (batch_size, 1, input_size)
         sampled_ids = torch.stack(sampled_ids, 1)  # sampled_ids: (batch_size, max_seq_length)
         return sampled_ids
 
@@ -66,8 +66,8 @@ class Decoder(nn.Module):
                 aa = index.cpu().numpy()
                 inverted_label = label_encoder.inverse_transform(aa)
 
-                features = self.embed(index)  # inputs: (batch_size, embed_size)
-                features = features.unsqueeze(1)  # inputs: (batch_size, 1, embed_size)
+                features = self.embed(index)  # inputs: (batch_size, input_size)
+                features = features.unsqueeze(1)  # inputs: (batch_size, 1, input_size)
 
                 beam_search.create_start_node(probability[0], index[0], features, states, label_encoder)
                 continue

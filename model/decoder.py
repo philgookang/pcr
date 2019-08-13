@@ -7,19 +7,42 @@ from component import *
 
 class Decoder(nn.Module):
 
-    def __init__(self, input_size, hidden_size, corpus_size, num_layers, max_seq_length=30):
+    def __init__(self, input_size, hidden_size, corpus_size, num_layers, max_seq_length=30, use_bi_direct = False, device = None):
         super(Decoder, self).__init__()
         self.input_size = input_size
         self.hidden_size = hidden_size
-        self.embed = nn.Embedding(corpus_size, input_size)
-        self.lstm = nn.LSTM(input_size = input_size, hidden_size = hidden_size, num_layers = num_layers, bias = True,  batch_first=True, bidirectional = False)
-        self.linear = nn.Linear(hidden_size, corpus_size)
+        self.num_layers = num_layers
+        self.use_bi_direct = use_bi_direct
         self.max_seg_length = max_seq_length
+        self.device = device
+
+        self.embed = nn.Embedding(corpus_size, input_size)
+        self.lstm = nn.LSTM(input_size = input_size, hidden_size = hidden_size, num_layers = num_layers, bias = True,  batch_first=True, bidirectional = self.use_bi_direct)
+        if self.use_bi_direct:
+            self.linear = nn.Linear(hidden_size*2, corpus_size)   # 2 for bidirection
+        else:
+            self.linear = nn.Linear(hidden_size, corpus_size)
 
     def forward(self, features, captions, lengths):
         embeddings = self.embed(captions)
         embeddings = torch.cat((features.unsqueeze(1), embeddings), 1)
         packed = pack_padded_sequence(embeddings, lengths, batch_first=True)
+
+        if self.use_bi_direct:
+             # Set initial states
+            h0 = torch.zeros(self.num_layers*2, embeddings.size(0), self.hidden_size).to(self.device) # 2 for bidirection
+            c0 = torch.zeros(self.num_layers*2, embeddings.size(0), self.hidden_size).to(self.device)
+
+            # Forward propagate LSTM
+            # out, _ = self.lstm(packed, (h0, c0))  # out: tensor of shape (batch_size, seq_length, hidden_size*2)
+            hiddens, _ = self.lstm(packed, (h0, c0))
+
+            # Decode the hidden state of the last time step
+            # out = self.fc(out[:, -1, :])
+            # return out
+            outputs = self.linear(hiddens[0])
+            return outputs
+
         hiddens, _ = self.lstm(packed)
         outputs = self.linear(hiddens[0])
         return outputs

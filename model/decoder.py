@@ -7,14 +7,14 @@ from component import *
 
 class Decoder(nn.Module):
 
-    def __init__(self, input_size, hidden_size, vocab_size, num_layers, max_seq_length=30):
+    def __init__(self, input_size, hidden_size, corpus_size, num_layers, max_seq_length=30):
         """Set the hyper-parameters and build the layers."""
         super(Decoder, self).__init__()
         self.input_size = input_size
         self.hidden_size = hidden_size
-        self.embed = nn.Embedding(vocab_size, input_size)
+        self.embed = nn.Embedding(corpus_size, input_size)
         self.lstm = nn.LSTM(input_size = input_size, hidden_size = hidden_size, num_layers = num_layers, bias = True,  batch_first=True, bidirectional = False)
-        self.linear = nn.Linear(hidden_size, vocab_size)
+        self.linear = nn.Linear(hidden_size, corpus_size)
         self.max_seg_length = max_seq_length
 
     def forward(self, features, captions, lengths):
@@ -34,9 +34,9 @@ class Decoder(nn.Module):
 
         return outputs
 
-    def update_layer(self, vocab_size):
-        self.embed = nn.Embedding(vocab_size, self.input_size)
-        self.linear = nn.Linear(self.hidden_size, vocab_size)
+    def update_layer(self, corpus_size):
+        self.embed = nn.Embedding(corpus_size, self.input_size)
+        self.linear = nn.Linear(self.hidden_size, corpus_size)
 
     def sample(self, features, states = None):
         """Generate captions for given image features using greedy search."""
@@ -44,7 +44,7 @@ class Decoder(nn.Module):
         inputs = features.unsqueeze(1)
         for i in range(self.max_seg_length):
             hiddens, states = self.lstm(inputs, states)  # hiddens: (batch_size, 1, hidden_size)
-            outputs = self.linear(hiddens.squeeze(1))  # outputs:  (batch_size, vocab_size)
+            outputs = self.linear(hiddens.squeeze(1))  # outputs:  (batch_size, corpus_size)
             _, predicted = outputs.max(1)  # predicted: (batch_size)
             sampled_ids.append(predicted)
             inputs = self.embed(predicted)  # inputs: (batch_size, input_size)
@@ -60,7 +60,7 @@ class Decoder(nn.Module):
 
             if i == 0:
                 hiddens, states = self.lstm(inputs, None)       # hiddens: (batch_size, 1, hidden_size)
-                outputs = self.linear(hiddens.squeeze(1))       # outputs:  (batch_size, vocab_size)
+                outputs = self.linear(hiddens.squeeze(1))       # outputs:  (batch_size, corpus_size)
                 probability, index = outputs.max(1)             # predicted: (batch_size)
 
                 aa = index.cpu().numpy()

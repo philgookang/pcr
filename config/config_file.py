@@ -17,3 +17,16 @@ dataset_file = {
     "validation"        : "cnn_rnn_validation_dataset.pkl",
     "result"            : "cnn_rnn_caption_result.pkl"
 }
+
+dataset_skip_file = {
+    "train"             : "skip_train.csv",
+    "validation"        : "skip_validation.csv",
+    "noun"              : "skip_noun.csv",
+    "pronoun"           : "skip_pronoun.csv",
+    "verb"              : "skip_verb.csv",
+    "adjective"         : "skip_adjective.csv",
+    "adverb"            : "skip_adverb.csv",
+    "conjunction"       : "skip_conjunction.csv",
+    "preposition"       : "skip_preposition.csv",
+    "interjection"      : "skip_interjection.csv"
+}

@@ -8,7 +8,7 @@ cnn_output_size = 1024
 # PoS CNN output combine method
 # 1 - concatenation    set rnn output 5120
 # 2 - Average matrix   set rnn output 1024
-cnn_output_combine_methods = 1
+cnn_output_combine_methods = 2
 
 
 # ##################################
@@ -16,7 +16,7 @@ cnn_output_combine_methods = 1
 # ##################################
 
 # LSTM input size
-rnn_embed_size = 5120 # 1024
+rnn_embed_size = 1024 # 5120
 
 # dimension of lstm hidden states
 rnn_lstm_hidden_size = 512

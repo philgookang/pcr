@@ -13,7 +13,7 @@ class Decoder(nn.Module):
         self.embed_size = embed_size
         self.hidden_size = hidden_size
         self.embed = nn.Embedding(vocab_size, embed_size)
-        self.lstm = nn.LSTM(embed_size, hidden_size, num_layers, batch_first=True)
+        self.lstm = nn.LSTM(input_size = embed_size, hidden_size = hidden_size, num_layers = num_layers, bias = True,  batch_first=True, bidirectional = False)
         self.linear = nn.Linear(hidden_size, vocab_size)
         self.max_seg_length = max_seq_length
 

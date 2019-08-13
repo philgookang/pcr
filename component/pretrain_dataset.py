@@ -37,10 +37,14 @@ class PretrainDataset(data.Dataset):
         item = self.dataset["data"][index]
 
         # get image
-        image = self.load_image(coco_pretrain_image_path + item["filename"])
+        image = self.load_image(COCO_IMAGE_PATH + item["filename"])
 
         # get one hot encoding of word
-        label = self.label_encoder.transform([item["word"]])
+        label = None
+        try:
+            label = self.label_encoder.transform([item["word"]])
+        except ValueError:
+            label = self.label_encoder.transform(["<unk>"])
         label = self.one_hot_encoder.transform([label])
         label = torch.from_numpy(label[0])
 

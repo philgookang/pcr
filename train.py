@@ -100,8 +100,8 @@ def train(learning_rate, use_visdom):
             adjective_features = adjective_model(images)
             conjunction_features = conjunction_model(images)
             preposition_features = preposition_model(images)
-            features = combine_output(noun_features, verb_features, adjective_features, conjunction_features, preposition_features, device)
-            outputs = decoder_model(features, captions, lengths)
+            features, attributes = combine_output(noun_features, verb_features, adjective_features, conjunction_features, preposition_features, device)
+            outputs = decoder_model(features, attributes, captions, lengths)
 
             # backpropagation
             loss = train_criterion(outputs, targets)
@@ -145,11 +145,11 @@ def train(learning_rate, use_visdom):
             adjective_features = adjective_model(images)
             conjunction_features = conjunction_model(images)
             preposition_features = preposition_model(images)
-            features = combine_output(noun_features, verb_features, adjective_features, conjunction_features, preposition_features, device)
+            features, attributes = combine_output(noun_features, verb_features, adjective_features, conjunction_features, preposition_features, device)
             captions.cuda(device)
             features.cuda(device)
             decoder_model.cuda(device)
-            outputs = decoder_model(features, captions, lengths)
+            outputs = decoder_model(features, attributes, captions, lengths)
             loss = validation_criterion(outputs, targets)
             loss_val = loss.item()
 

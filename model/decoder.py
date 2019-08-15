@@ -4,6 +4,7 @@ import torchvision.models as models
 from torch.nn.utils.rnn import pack_padded_sequence
 from torch.autograd import Variable
 from component import *
+from config import *
 
 class Decoder(nn.Module):
 
@@ -23,8 +24,10 @@ class Decoder(nn.Module):
         else:
             self.linear = nn.Linear(hidden_size, corpus_size)
 
-    def forward(self, features, captions, lengths):
+    def forward(self, features, attributes, captions, lengths):
         embeddings = self.embed(captions)
+        if cnn_output_combine_methods == 3:                      # inserting VCAP at each state of LSTM sequencing
+            embeddings = embeddings * (attributes.unsqueeze(1))
         embeddings = torch.cat((features.unsqueeze(1), embeddings), 1)
         packed = pack_padded_sequence(embeddings, lengths, batch_first=True)
 
@@ -51,7 +54,7 @@ class Decoder(nn.Module):
         self.embed = nn.Embedding(corpus_size, self.input_size)
         self.linear = nn.Linear(self.hidden_size, corpus_size)
 
-    def sample(self, features, states = None):
+    def sample(self, features, attributes, states = None):
         sampled_ids = []
         inputs = features.unsqueeze(1)
         for i in range(self.max_seg_length):
@@ -61,10 +64,12 @@ class Decoder(nn.Module):
             sampled_ids.append(predicted)
             inputs = self.embed(predicted)
             inputs = inputs.unsqueeze(1)
+            if cnn_output_combine_methods == 3:                      # inserting VCAP at each state of LSTM sequencing
+                inputs = inputs * (attributes.unsqueeze(1))
         sampled_ids = torch.stack(sampled_ids, 1)
         return sampled_ids
 
-    def beam(self, features, label_encoder, k):
+    def beam(self, features, attributes, label_encoder, k):
         beam_search = BeamSearch(k)
         inputs = features.unsqueeze(1)
         for i in range(self.max_seg_length):
@@ -78,6 +83,7 @@ class Decoder(nn.Module):
 
                 features = self.embed(index)  # inputs: (batch_size, input_size)
                 features = features.unsqueeze(1)  # inputs: (batch_size, 1, input_size)
+                inputs = inputs * (attributes.unsqueeze(1))
 
                 beam_search.create_start_node(probability[0], index[0], features, states, label_encoder)
                 continue
@@ -91,6 +97,7 @@ class Decoder(nn.Module):
 
                     features = self.embed(index.unsqueeze(0))
                     features = features.unsqueeze(1)
+                    inputs = inputs * (attributes.unsqueeze(1))
 
                     beam_search.new_phrases.append(phrase.nodes + [BeamNode(probability, index, features, states, label_encoder)])
 

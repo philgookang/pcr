@@ -28,9 +28,14 @@ def combine_vertically(*args):
 
 def combine_output(noun_features, verb_features, adjective_features, conjunction_features, preposition_features, device):
     features = None
+    attributes = None
     if cnn_output_combine_methods == 1:
         features = combine_vertically(noun_features, verb_features, adjective_features, conjunction_features, preposition_features)
     elif cnn_output_combine_methods == 2:
         features = ((noun_features + verb_features + adjective_features + conjunction_features + preposition_features) / 5)
+    elif cnn_output_combine_methods == 3:
+        features = noun_features
+        attributes = ((verb_features + adjective_features + conjunction_features + preposition_features) / 4)
+        attributes = attributes.to(device, non_blocking = True)
     features = features.to(device, non_blocking = True)
-    return features
+    return features, attributes

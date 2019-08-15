@@ -106,12 +106,12 @@ class Pcr():
         adjective_features      = self.adjective_model(image)
         conjunction_features    = self.conjunction_model(image)
         preposition_features    = self.preposition_model(image)
-        features = combine_output(noun_features, verb_features, adjective_features, conjunction_features, preposition_features, self.device)
+        features, attributes    = combine_output(noun_features, verb_features, adjective_features, conjunction_features, preposition_features, self.device)
 
         if rnn_inference == "sample":
 
             # decoder
-            sampled_ids = self.rnn_model.module.sample(features)
+            sampled_ids = self.rnn_model.module.sample(features, attributes)
             sampled_ids = sampled_ids[0].cpu().numpy()
 
             # # reverse label encoding
@@ -125,7 +125,7 @@ class Pcr():
 
             return sampled_caption[1:-1]
         elif rnn_inference == "beam_search":
-            return self.rnn_model.module.beam(features, self.label_encoder, rnn_beam_search_width)
+            return self.rnn_model.module.beam(features, attributes, self.label_encoder, rnn_beam_search_width)
 
 
 if __name__ == "__main__":

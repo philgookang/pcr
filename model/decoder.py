@@ -19,7 +19,9 @@ class Decoder(nn.Module):
 
         self.embed = nn.Embedding(corpus_size, input_size)
         self.lstm = nn.LSTM(input_size = input_size, hidden_size = hidden_size, num_layers = num_layers, bias = True,  batch_first=True, bidirectional = self.use_bi_direct)
+        # self.dropout = nn.Dropout(drop_prop)   # drop_prop=0.3
         if self.use_bi_direct:
+            print("LSTM bidireciton:", self.use_bi_direct)
             self.linear = nn.Linear(hidden_size*2, corpus_size)   # 2 for bidirection
         else:
             self.linear = nn.Linear(hidden_size, corpus_size)
@@ -31,20 +33,24 @@ class Decoder(nn.Module):
         embeddings = torch.cat((features.unsqueeze(1), embeddings), 1)
         packed = pack_padded_sequence(embeddings, lengths, batch_first=True)
 
-        if self.use_bi_direct:
-             # Set initial states
-            h0 = torch.zeros(self.num_layers*2, embeddings.size(0), self.hidden_size).to(self.device) # 2 for bidirection
-            c0 = torch.zeros(self.num_layers*2, embeddings.size(0), self.hidden_size).to(self.device)
-
-            # Forward propagate LSTM
-            # out, _ = self.lstm(packed, (h0, c0))  # out: tensor of shape (batch_size, seq_length, hidden_size*2)
-            hiddens, _ = self.lstm(packed, (h0, c0))
-
-            # Decode the hidden state of the last time step
-            # out = self.fc(out[:, -1, :])
-            # return out
-            outputs = self.linear(hiddens[0])
-            return outputs
+        # if self.use_bi_direct:
+        #      # Set initial states
+        #     h0 = torch.zeros(self.num_layers*2, embeddings.size(0), self.hidden_size).to(self.device) # 2 for bidirection
+        #     c0 = torch.zeros(self.num_layers*2, embeddings.size(0), self.hidden_size).to(self.device)
+        #
+        #     # Forward propagate LSTM
+        #     # out, _ = self.lstm(packed, (h0, c0))  # out: tensor of shape (batch_size, seq_length, hidden_size*2)
+        #     hiddens, _ = self.lstm(packed, (h0, c0))
+        #
+        #     # lets try adding a dropout layer later on
+        #     # out = self.dropout(out)
+        #
+        #     # Decode the hidden state of the last time step
+        #     # out = self.fc(out[:, -1, :])
+        #     # return out
+        #     outputs = self.linear(hiddens[:, -1, :])
+        #     # outputs = self.linear(hiddens[0])
+        #     return outputs
 
         hiddens, _ = self.lstm(packed)
         outputs = self.linear(hiddens[0])

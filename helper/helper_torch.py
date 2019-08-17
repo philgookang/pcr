@@ -39,3 +39,20 @@ def combine_output(noun_features, verb_features, adjective_features, conjunction
         attributes = attributes.to(device, non_blocking = True)
     features = features.to(device, non_blocking = True)
     return features, attributes
+
+
+def flip_tensor(lst, is_grad = False):
+    '''this only works for 3차원 dimension'''
+    if is_grad:
+        lst = lst.cpu().detach().numpy()
+    else:
+        lst = lst.cpu().numpy()
+
+    result_list = [ ]
+    for inner_list in lst:
+        result_inner_list = []
+        for item_list in inner_list:
+            result_inner_list.append( list(reversed(item_list)) )
+        result_list.append(result_inner_list)
+    bb = torch.tensor(result_list)
+    return bb

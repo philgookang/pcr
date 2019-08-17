@@ -33,3 +33,6 @@ rnn_inference = "sample" # "sample" "beam_search"
 
 # number of beam search K
 rnn_beam_search_width = 3
+
+# dropout
+rnn_lstm_dropout = 0.3

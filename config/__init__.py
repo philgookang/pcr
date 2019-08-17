@@ -12,6 +12,7 @@ from config.config_model import rnn_lstm_hidden_size
 from config.config_model import rnn_lstm_number_of_layers
 from config.config_model import rnn_inference
 from config.config_model import rnn_beam_search_width
+from config.config_model import rnn_lstm_dropout
 
 from config.config_path import BASE_PATH
 from config.config_path import COCO_ROOT

@@ -18,8 +18,13 @@ class Decoder(nn.Module):
         self.device = device
 
         self.embed = nn.Embedding(corpus_size, input_size)
-        self.lstm = nn.LSTM(input_size = input_size, hidden_size = hidden_size, num_layers = num_layers, bias = True,  batch_first=True, bidirectional = self.use_bi_direct)
-        # self.dropout = nn.Dropout(drop_prop)   # drop_prop=0.3
+        self.lstm = nn.LSTM(input_size = input_size,
+                            hidden_size = hidden_size,
+                            num_layers = num_layers,
+                            bias = True,
+                            batch_first = True,
+                            dropout = rnn_lstm_dropout,
+                            bidirectional = self.use_bi_direct)
         if self.use_bi_direct:
             print("LSTM bidireciton:", self.use_bi_direct)
             self.linear = nn.Linear(hidden_size*2, corpus_size)   # 2 for bidirection

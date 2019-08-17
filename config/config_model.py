@@ -17,7 +17,7 @@ cnn_output_combine_methods = 3
 # ##################################
 
 # Using bi-direction RNN
-use_bi_direction_lstm = True
+use_bi_direction_lstm = False
 
 # LSTM input size
 rnn_embed_size = 1024 # 5120

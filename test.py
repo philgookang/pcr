@@ -79,7 +79,7 @@ class Pcr():
 
     def load_rnn_model(self, train_output_size):
         features = torch.load(os.path.join(RESULT_MODEL_PATH, model_file["decoder"]["train"]))
-        decoder_model = Decoder( rnn_embed_size, rnn_lstm_hidden_size, train_output_size, rnn_lstm_number_of_layers)
+        decoder_model = Decoder( rnn_embed_size, rnn_lstm_hidden_size, train_output_size, rnn_lstm_number_of_layers, 30, use_bi_direction_lstm, self.device)
         decoder_model = nn.DataParallel(decoder_model, device_ids = [0])
         decoder_model.to(self.device, non_blocking=True)
         decoder_model.load_state_dict(features)

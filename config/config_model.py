@@ -8,8 +8,8 @@ cnn_output_size = 1024
 # PoS CNN output combine method
 # 1 - concatenation              set rnn output 5120
 # 2 - Average matrix             set rnn output 1024
-# 3 - noun only to decoder, VACP to combine with features (avg matrix)
-cnn_output_combine_methods = 3
+# 3 - noun only to decoder, VACP to combine with features (avg matrix) set rnn output 1024
+cnn_output_combine_methods = 2
 
 
 # ##################################
@@ -35,4 +35,4 @@ rnn_inference = "sample" # "sample" "beam_search"
 rnn_beam_search_width = 3
 
 # dropout
-rnn_lstm_dropout = 0.3
+rnn_lstm_dropout = 0

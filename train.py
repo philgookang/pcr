@@ -213,7 +213,7 @@ def load_model(pos, embed_size, device, skip = False):
 if __name__ == "__main__":
 
     # learning rate
-    learning_rate = [ 0.004 ]
+    learning_rate = [ 0.0004 ]
 
     # back stats
     cudnn.benchmark = True

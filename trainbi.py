@@ -111,7 +111,7 @@ def train(learning_rate, use_visdom):
             conjunction_features = conjunction_model(images)
             preposition_features = preposition_model(images)
             features, attributes = combine_output(noun_features, verb_features, adjective_features, conjunction_features, preposition_features, device)
-            outputs = decoder_model(features, x, l)
+            outputs = decoder_model(features, x, l, None)
 
             # backpropagation
             loss = train_criterion(outputs, targets)

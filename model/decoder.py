@@ -31,7 +31,7 @@ class Decoder(nn.Module):
         else:
             self.linear = nn.Linear(hidden_size, corpus_size)
 
-    def forward(self, features, x, l):
+    def forward_for_bi(self, features, x, l):
 
         # for i in range(len(x)):
         new_dataset = []
@@ -71,35 +71,20 @@ class Decoder(nn.Module):
 
         return result
 
-    # def forward(self, features, attributes, captions, lengths):
-    #     embeddings = self.embed(captions)
-    #     if cnn_output_combine_methods == 3:                      # inserting VCAP at each state of LSTM sequencing
-    #         embeddings = embeddings * (attributes.unsqueeze(1))
-    #     embeddings = torch.cat((features.unsqueeze(1), embeddings), 1)
-    #     packed = pack_padded_sequence(embeddings, lengths, batch_first=True)
-    #
-    #     # if self.use_bi_direct:
-    #     #      # Set initial states
-    #     #     h0 = torch.zeros(self.num_layers*2, embeddings.size(0), self.hidden_size).to(self.device) # 2 for bidirection
-    #     #     c0 = torch.zeros(self.num_layers*2, embeddings.size(0), self.hidden_size).to(self.device)
-    #     #
-    #     #     # Forward propagate LSTM
-    #     #     # out, _ = self.lstm(packed, (h0, c0))  # out: tensor of shape (batch_size, seq_length, hidden_size*2)
-    #     #     hiddens, _ = self.lstm(packed, (h0, c0))
-    #     #
-    #     #     # lets try adding a dropout layer later on
-    #     #     # out = self.dropout(out)
-    #     #
-    #     #     # Decode the hidden state of the last time step
-    #     #     # out = self.fc(out[:, -1, :])
-    #     #     # return out
-    #     #     outputs = self.linear(hiddens[:, -1, :])
-    #     #     # outputs = self.linear(hiddens[0])
-    #     #     return outputs
-    #
-    #     hiddens, _ = self.lstm(packed)
-    #     outputs = self.linear(hiddens[0])
-    #     return outputs
+    def forward(self, features, attributes, captions, lengths):
+
+        if self.use_bi_direct:
+            return self.forward_for_bi(features, attributes, captions)
+
+        embeddings = self.embed(captions)
+        if cnn_output_combine_methods == 3:                      # inserting VCAP at each state of LSTM sequencing
+            embeddings = embeddings * (attributes.unsqueeze(1))
+        embeddings = torch.cat((features.unsqueeze(1), embeddings), 1)
+        packed = pack_padded_sequence(embeddings, lengths, batch_first=True)
+
+        hiddens, _ = self.lstm(packed)
+        outputs = self.linear(hiddens[0])
+        return outputs
 
     def update_layer(self, corpus_size):
         self.embed = nn.Embedding(corpus_size, self.input_size)

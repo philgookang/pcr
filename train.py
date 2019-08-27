@@ -61,7 +61,17 @@ def train(learning_rate, use_visdom):
     # loss function & optimization
     train_criterion = nn.CrossEntropyLoss().cuda() if torch.cuda.is_available() else nn.CrossEntropyLoss()
     validation_criterion = nn.CrossEntropyLoss().cuda() if torch.cuda.is_available() else nn.CrossEntropyLoss()
-    params = list(decoder_model.parameters()) + list(decoder_model.module.linear.parameters()) + list(noun_model.module.linear.parameters()) + list(noun_model.module.bn.parameters())
+    # params = list(decoder_model.parameters()) + list(decoder_model.module.linear.parameters()) + list(noun_model.module.linear.parameters()) + list(noun_model.module.bn.parameters())
+    params = list(decoder_model.parameters())
+    params = params + list(decoder_model.module.linear.parameters())
+    params = params + list(noun_model.module.linear.parameters())
+    params = params + list(noun_model.module.bn.parameters())
+    params = params + list(verb_model.module.linear.parameters())
+    params = params + list(verb_model.module.bn.parameters())
+    params = params + list(conjunction_model.module.linear.parameters())
+    params = params + list(conjunction_model.module.bn.parameters())
+    params = params + list(preposition_model.module.linear.parameters())
+    params = params + list(preposition_model.module.bn.parameters())
     optimizer = torch.optim.Adam(params, lr = learning_rate)
 
     # #################################################################################
@@ -213,7 +223,7 @@ def load_model(pos, embed_size, device, skip = False):
 if __name__ == "__main__":
 
     # learning rate
-    learning_rate = [ 0.0004 ]
+    learning_rate = [ 0.0001 ]
 
     # back stats
     cudnn.benchmark = True

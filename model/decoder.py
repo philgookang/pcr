@@ -56,6 +56,10 @@ class Decoder(nn.Module):
             new_dataset.append(tmp.copy())
 
         new_dataset_tensor = torch.FloatTensor(new_dataset)
+
+        new_dataset_tensor = new_dataset_tensor.to(self.device)
+        new_dataset_tensor.cuda(self.device)
+
         packed = pack_padded_sequence(new_dataset_tensor, l, batch_first=True)
 
         hiddens, _ = self.lstm(packed)

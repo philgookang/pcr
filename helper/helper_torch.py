@@ -18,7 +18,7 @@ def coco_collate_fn(data):
     return images, targets, lengths
 
 def coco_collate_fn_for_bidirectional(data):
-    # Sort a data list by caption length (descending order).
+# Sort a data list by caption length (descending order).
     data.sort(key=lambda x: len(x[1]), reverse=True)
     images, captions = zip(*data)
 
@@ -31,7 +31,48 @@ def coco_collate_fn_for_bidirectional(data):
     for i, cap in enumerate(captions):
         end = lengths[i]
         targets[i, :end] = cap[:end]
-    return images, targets, lengths
+
+    x = []
+    y = []
+    l = []
+    l2 = []
+
+    for image_id, sentence in enumerate(targets):
+
+        targets = torch.zeros(len(sentence)).long()
+
+        # section = [ ]
+
+        for index in range(len(sentence)-1):
+
+            current = sentence[index]
+            next = sentence[(index+1)]
+
+            targets[index] = current
+
+            # section.append( targets.clone() )
+            x.append( { "section" : image_id, "data" : targets.clone(), "target" : int(next.cpu().detach().numpy()) } )
+            y.append( int(next.cpu().detach().numpy()) )
+            l2.append(1)
+
+    def sort_by_zero_count(ten):
+        cnt = 0
+        for i in ten["data"]:
+            if i != 0:
+                cnt += 1
+        return cnt
+
+    x.sort(key=sort_by_zero_count, reverse=True)
+
+    lengthlength = []
+
+    for item in x:
+        lengthlength.append([item["target"]])
+        l.append((sort_by_zero_count(item) + 1))
+
+    yyy = torch.FloatTensor(lengthlength).long()
+
+    return images, x, yyy, l, l2
 
 def combine_vertically(*args):
     lst = []

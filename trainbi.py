@@ -98,7 +98,8 @@ def train(learning_rate, use_visdom):
 
             # set tensor to GPU
             images = images.to(device, non_blocking = True)
-            captions = captions.to(device, non_blocking = True)
+            y = y.to(device, non_blocking = True)
+            # captions = captions.to(device, non_blocking = True)
 
             # create minibatch
             targets = pack_padded_sequence(y, l2, batch_first=True)[0]

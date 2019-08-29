@@ -32,7 +32,7 @@ log_step = 5
 # ##################################
 
 # number of process worker (load data from disk to gpu)
-number_of_workers = 2# 32
+number_of_workers = 32
 
 # data loader shuffle dataset
 is_shuffle = False
@@ -41,4 +41,4 @@ is_shuffle = False
 pretrain_batch_size = 128
 
 # size of each training cycle
-train_batch_size = 10 # 128
+train_batch_size = 128

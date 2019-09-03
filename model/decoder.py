@@ -62,6 +62,8 @@ class Decoder(nn.Module):
 
         packed = pack_padded_sequence(new_dataset_tensor, l, batch_first=True)
 
+        # print("packed[0].shape", packed[0].shape)
+
         hiddens, _ = self.lstm(packed)
 
         sent_output = nn.utils.rnn.pad_packed_sequence(hiddens, batch_first=True)[0]
@@ -91,6 +93,9 @@ class Decoder(nn.Module):
         self.linear = nn.Linear(self.hidden_size, corpus_size)
 
     def sample(self, features, attributes, states = None):
+        if self.use_bi_direct:
+            return self.samplebi(features, attributes, states)
+
         sampled_ids = []
         inputs = features.unsqueeze(1)
         for i in range(self.max_seg_length):
@@ -102,6 +107,40 @@ class Decoder(nn.Module):
             inputs = inputs.unsqueeze(1)
             if cnn_output_combine_methods == 3:                      # inserting VCAP at each state of LSTM sequencing
                 inputs = inputs * (attributes.unsqueeze(1))
+        sampled_ids = torch.stack(sampled_ids, 1)
+        return sampled_ids
+
+    def samplebi(self, features, attributes, states = None):
+        sampled_ids = []
+        inputs = features.unsqueeze(1)
+        print("inputs -1", inputs[0].shape)
+        for i in range(self.max_seg_length):
+            hiddens, states = self.lstm(inputs, states)
+
+            print("hiddens", i, hiddens.shape)
+
+            outputs = self.linear(hiddens.squeeze(1))
+            _, predicted = outputs.max(1)
+            sampled_ids.append(predicted)
+            input_next = self.embed(predicted)
+            input_next = input_next.unsqueeze(1)
+
+            inputs = input_next
+
+            # print("inputs", i, inputs.shape)
+            # print("input_next", i, input_next.shape)
+            # inputs = torch.cat((inputs, input_next), 1)
+            #
+            # print("inputs", i, inputs.shape)
+            #
+            #
+            # # sent_output = input_next[:, 0, :]
+            # sent_output = input_next[:, -1, :]  # <- this is 윤재
+            #
+            # print("sent_output", sent_output.shape)
+
+
+            # print(phil)
         sampled_ids = torch.stack(sampled_ids, 1)
         return sampled_ids
 

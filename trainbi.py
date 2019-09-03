@@ -85,7 +85,7 @@ def train(learning_rate, use_visdom):
     preposition_model.cuda(device)
 
     # train & eval the model
-    for epoch in range(cnn_rnn_number_epochs):
+    for epoch in range(8):
 
         # prep model for training
         noun_model.train()
@@ -96,52 +96,47 @@ def train(learning_rate, use_visdom):
         decoder_model.train()
         for i, (images, x, y, l, l2) in enumerate(train_dataset_loader):
 
-            # set tensor to GPU
-            images = images.to(device, non_blocking = True)
-            y = y.to(device, non_blocking = True)
-            # captions = captions.to(device, non_blocking = True)
+            try:
+                # set tensor to GPU
+                images = images.to(device, non_blocking = True)
+                y = y.to(device, non_blocking = True)
+                # captions = captions.to(device, non_blocking = True)
 
-            # create minibatch
-            targets = pack_padded_sequence(y, l2, batch_first=True)[0]
+                # create minibatch
+                targets = pack_padded_sequence(y, l2, batch_first=True)[0]
 
-            # forward propagation
-            noun_features = noun_model(images)
-            verb_features = verb_model(images)
-            adjective_features = adjective_model(images)
-            conjunction_features = conjunction_model(images)
-            preposition_features = preposition_model(images)
-            features, attributes = combine_output(noun_features, verb_features, adjective_features, conjunction_features, preposition_features, device)
-            outputs = decoder_model(features, x, l, None)
+                # forward propagation
+                noun_features = noun_model(images)
+                verb_features = verb_model(images)
+                adjective_features = adjective_model(images)
+                conjunction_features = conjunction_model(images)
+                preposition_features = preposition_model(images)
+                features, attributes = combine_output(noun_features, verb_features, adjective_features, conjunction_features, preposition_features, device)
+                outputs = decoder_model(features, x, l, None)
 
-            # backpropagation
-            loss = train_criterion(outputs, targets)
-            noun_model.zero_grad()
-            verb_model.zero_grad()
-            adjective_model.zero_grad()
-            conjunction_model.zero_grad()
-            preposition_model.zero_grad()
-            decoder_model.zero_grad()
-            loss.backward()
-            optimizer.step()
+                # backpropagation
+                loss = train_criterion(outputs, targets)
+                noun_model.zero_grad()
+                verb_model.zero_grad()
+                adjective_model.zero_grad()
+                conjunction_model.zero_grad()
+                preposition_model.zero_grad()
+                decoder_model.zero_grad()
+                loss.backward()
+                optimizer.step()
 
-            # eval
-            loss_val = loss.item()
+                # eval
+                loss_val = loss.item()
 
-            # check for every step
-            if i % log_step == 0:
-                # graph loss and process
-                if use_visdom: loss_graph = log_graph(loss_graph, loss_val, cnn_rnn_number_epochs, epoch, i, vis)
-                print('Train Epoch [{}/{}], Step [{}/{}], Loss: {:.4f}'.format(epoch + 1, cnn_rnn_number_epochs, i + 1, len(train_dataset_loader), loss_val))
+                # check for every step
+                if i % log_step == 0:
+                    # graph loss and process
+                    if use_visdom: loss_graph = log_graph(loss_graph, loss_val, cnn_rnn_number_epochs, epoch, i, vis)
+                    print('Train Epoch [{}/{}], Step [{}/{}], Loss: {:.4f}'.format(epoch + 1, cnn_rnn_number_epochs, i + 1, len(train_dataset_loader), loss_val))
+            except:
+                continue
 
-        # print training/validation statistics
-        # calculate average loss over an epoch
-        valid_loss = np.average(valid_losses)
-        valid_losses = []
-
-        # early_stopping needs the validation loss to check if it has decresed,
-        # and if it has, it will make a checkpoint of the current model
-        early_stopping(valid_loss)
-
+            print(phil)
         # ============ SAVE Untill here!
 
         # save trained model
@@ -153,10 +148,6 @@ def train(learning_rate, use_visdom):
         save_model(decoder_model, model_file["decoder"]["train"])
 
         # ============ SAVE Untill here!
-
-        if early_stopping.early_stop:
-            print("Early stopping !!!!!!!!!!!!!!!!!!!!!!!")
-            break
 
     # return trained model
     return noun_model, verb_model, adjective_model, conjunction_model, preposition_model, decoder_model

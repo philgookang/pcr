@@ -106,7 +106,7 @@ class Pcr():
         adjective_features      = self.adjective_model(image)
         conjunction_features    = self.conjunction_model(image)
         preposition_features    = self.preposition_model(image)
-        features, attributes    = combine_output(noun_features, verb_features, adjective_features, conjunction_features, preposition_features, self.device)
+        features, attributes    = combine_output(noun_features, verb_features, adjective_features, conjunction_features, preposition_features, self.device, self.rnn_model.module.linear_combiner)
 
         if rnn_inference == "sample":
 

@@ -64,6 +64,8 @@ def train(learning_rate, use_visdom):
     # params = list(decoder_model.parameters()) + list(decoder_model.module.linear.parameters()) + list(noun_model.module.linear.parameters()) + list(noun_model.module.bn.parameters())
     params = list(decoder_model.parameters())
     params = params + list(decoder_model.module.linear.parameters())
+    if cnn_output_combine_methods == 4:                                              # combining method is linear
+        params = params + list(decoder_model.module.linear_combiner.parameters())
     params = params + list(noun_model.module.linear.parameters())
     params = params + list(noun_model.module.bn.parameters())
     params = params + list(verb_model.module.linear.parameters())
@@ -110,7 +112,7 @@ def train(learning_rate, use_visdom):
             adjective_features = adjective_model(images)
             conjunction_features = conjunction_model(images)
             preposition_features = preposition_model(images)
-            features, attributes = combine_output(noun_features, verb_features, adjective_features, conjunction_features, preposition_features, device)
+            features, attributes = combine_output(noun_features, verb_features, adjective_features, conjunction_features, preposition_features, device, decoder_model.module.linear_combiner)
             outputs = decoder_model(features, attributes, captions, lengths)
 
             # backpropagation
@@ -155,7 +157,7 @@ def train(learning_rate, use_visdom):
             adjective_features = adjective_model(images)
             conjunction_features = conjunction_model(images)
             preposition_features = preposition_model(images)
-            features, attributes = combine_output(noun_features, verb_features, adjective_features, conjunction_features, preposition_features, device)
+            features, attributes = combine_output(noun_features, verb_features, adjective_features, conjunction_features, preposition_features, device, decoder_model.module.linear_combiner)
             captions.cuda(device)
             features.cuda(device)
             decoder_model.cuda(device)

@@ -17,6 +17,8 @@ class Decoder(nn.Module):
         self.max_seg_length = max_seq_length
         self.device = device
 
+        self.linear_combiner = nn.Linear(cnn_output_size*5, input_size)
+
         self.embed = nn.Embedding(corpus_size, input_size)
         self.lstm = nn.LSTM(input_size = input_size,
                             hidden_size = hidden_size,

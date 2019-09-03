@@ -83,7 +83,7 @@ def combine_vertically(*args):
     return final
 
 
-def combine_output(noun_features, verb_features, adjective_features, conjunction_features, preposition_features, device):
+def combine_output(noun_features, verb_features, adjective_features, conjunction_features, preposition_features, device, cnn_linear = None):
     features = None
     attributes = None
     if cnn_output_combine_methods == 1:
@@ -94,6 +94,9 @@ def combine_output(noun_features, verb_features, adjective_features, conjunction
         features = noun_features
         attributes = ((verb_features + adjective_features + conjunction_features + preposition_features) / 4)
         attributes = attributes.to(device, non_blocking = True)
+    elif cnn_output_combine_methods == 4:
+        features = torch.cat((noun_features, verb_features, adjective_features, conjunction_features, preposition_features), 1)
+        features = cnn_linear(features)
     features = features.to(device, non_blocking = True)
     return features, attributes
 

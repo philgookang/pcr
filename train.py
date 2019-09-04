@@ -63,17 +63,17 @@ def train(learning_rate, use_visdom):
     validation_criterion = nn.CrossEntropyLoss().cuda() if torch.cuda.is_available() else nn.CrossEntropyLoss()
     # params = list(decoder_model.parameters()) + list(decoder_model.module.linear.parameters()) + list(noun_model.module.linear.parameters()) + list(noun_model.module.bn.parameters())
     params = list(decoder_model.parameters())
-    params = params + list(decoder_model.module.linear.parameters())
+    # params = params + list(decoder_model.module.linear.parameters())
     if cnn_output_combine_methods == 4:                                              # combining method is linear
         params = params + list(decoder_model.module.linear_combiner.parameters())
     params = params + list(noun_model.module.linear.parameters())
     params = params + list(noun_model.module.bn.parameters())
-    params = params + list(verb_model.module.linear.parameters())
-    params = params + list(verb_model.module.bn.parameters())
-    params = params + list(conjunction_model.module.linear.parameters())
-    params = params + list(conjunction_model.module.bn.parameters())
-    params = params + list(preposition_model.module.linear.parameters())
-    params = params + list(preposition_model.module.bn.parameters())
+    # params = params + list(verb_model.module.linear.parameters())
+    # params = params + list(verb_model.module.bn.parameters())
+    # params = params + list(conjunction_model.module.linear.parameters())
+    # params = params + list(conjunction_model.module.bn.parameters())
+    # params = params + list(preposition_model.module.linear.parameters())
+    # params = params + list(preposition_model.module.bn.parameters())
     optimizer = torch.optim.Adam(params, lr = learning_rate)
 
     # #################################################################################
@@ -205,7 +205,7 @@ def log_graph(loss_graph, loss_val, number_epochs, epoch, i, vis):
     if loss_graph == None:
         legend = ["Epoch {0}".format(epoch) for epoch in range(number_epochs)]
         loss_graph = vis.line(X=np.array([i]), Y=np.array([loss_val]), name="Epoch {0}".format(epoch), opts=dict(
-            title="(NVACP)CNN-RNN (LR: {0})".format(learning_rate), legend=legend, xlabel='Iteration', ylabel='Loss'
+            title="PCR (LR: {0}, Comb: {1})".format(learning_rate, cnn_output_combine_methods), legend=legend, xlabel='Iteration', ylabel='Loss'
         ))
     else:
         vis.line(X=np.array([i]), Y=np.array([loss_val]), name="Epoch {0}".format(epoch), update='append', win=loss_graph)

@@ -9,7 +9,8 @@ cnn_output_size = 1024
 # 1 - concatenation              set rnn output 5120
 # 2 - Average matrix             set rnn output 1024
 # 3 - noun only to decoder, VACP to combine with features (avg matrix) set rnn output 1024
-cnn_output_combine_methods = 2
+# 4 - Linear layer               set rnn output 1024
+cnn_output_combine_methods = 4
 
 
 # ##################################
@@ -17,7 +18,7 @@ cnn_output_combine_methods = 2
 # ##################################
 
 # Using bi-direction RNN
-use_bi_direction_lstm = True
+use_bi_direction_lstm = False
 
 # LSTM input size
 rnn_embed_size = 1024 # 5120

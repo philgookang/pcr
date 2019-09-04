@@ -144,7 +144,7 @@ if __name__ == "__main__":
     skip_count = 0
 
     # create image yes or no
-    should_create_image = False
+    should_create_image = True
 
     # the loading bar
     # create hypothesis

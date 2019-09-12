@@ -45,8 +45,8 @@ if __name__ == "__main__":
 
         # add list
         result_holder.append({
-            "reference"  : [ref2, ref3, ref4, ref5],
-            "hypothesis" : ref1
+            "reference"  : [ref1, ref2, ref3, ref4],
+            "hypothesis" : ref5
         })
 
     # test human value

@@ -9,6 +9,11 @@ term_frequency_threshold = 5
 # size of dataset
 validation_and_test_dataset_size = 5000
 
+# dataset type
+# 1 - MSCOCO 2017
+# 2 - Flickr8k
+dataset_type = 2
+
 
 # ##################################
 # PRETRAIN & TRAINING & TEST

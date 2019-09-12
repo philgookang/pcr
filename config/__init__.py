@@ -43,3 +43,4 @@ from config.config_train import number_of_workers
 from config.config_train import is_shuffle
 from config.config_train import pretrain_batch_size
 from config.config_train import train_batch_size
+from config.config_train import dataset_type

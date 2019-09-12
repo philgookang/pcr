@@ -151,7 +151,7 @@ if __name__ == "__main__":
     pbar = tqdm(test_dataset)
     for filename in pbar:
         try:
-            hypothesis = pcr.testcase(os.path.join(COCO_IMAGE_PATH + filename))
+            hypothesis = pcr.testcase(os.path.join(IMG_PATH + filename))
 
             result_holder.append({
                 "reference" : test_dataset[filename],

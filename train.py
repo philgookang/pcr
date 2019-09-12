@@ -43,8 +43,8 @@ def train(learning_rate, use_visdom):
     # #################################################################################
 
     # create train loader
-    train_dataset_loader = torch.utils.data.DataLoader(dataset=TrainEvalDataset(dataset=train_dataset, transform=trans, image_path=COCO_IMAGE_PATH), batch_size=train_batch_size, shuffle=is_shuffle, num_workers=number_of_workers, collate_fn=coco_collate_fn)
-    eval_dataset_loader  = torch.utils.data.DataLoader(dataset=TrainEvalDataset(dataset=validation_dataset, transform=trans, image_path=COCO_IMAGE_PATH), batch_size=train_batch_size, shuffle=is_shuffle, num_workers=number_of_workers, collate_fn=coco_collate_fn)
+    train_dataset_loader = torch.utils.data.DataLoader(dataset=TrainEvalDataset(dataset=train_dataset, transform=trans, image_path=IMG_PATH), batch_size=train_batch_size, shuffle=is_shuffle, num_workers=number_of_workers, collate_fn=coco_collate_fn)
+    eval_dataset_loader  = torch.utils.data.DataLoader(dataset=TrainEvalDataset(dataset=validation_dataset, transform=trans, image_path=IMG_PATH), batch_size=train_batch_size, shuffle=is_shuffle, num_workers=number_of_workers, collate_fn=coco_collate_fn)
 
     # Build Encoder
     noun_model        = load_model("noun", len(pretrain_dataset["noun"]["corpus"]), device, True)

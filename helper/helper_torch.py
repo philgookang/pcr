@@ -83,20 +83,27 @@ def combine_vertically(*args):
     return final
 
 
-def combine_output(noun_features, verb_features, adjective_features, conjunction_features, preposition_features, device, cnn_linear = None):
+def combine_output(noun_features, verb_features, adjective_features, conjunction_features, preposition_features, device, decoder_model):
     features = None
     attributes = None
     if cnn_output_combine_methods == 1:
         features = combine_vertically(noun_features, verb_features, adjective_features, conjunction_features, preposition_features)
     elif cnn_output_combine_methods == 2:
         features = ((noun_features + verb_features + adjective_features + conjunction_features + preposition_features) / 5)
+        # features = ((noun_features + verb_features + adjective_features + conjunction_features) / 4) # preposition_features
     elif cnn_output_combine_methods == 3:
         features = noun_features
         attributes = ((verb_features + adjective_features + conjunction_features + preposition_features) / 4)
         attributes = attributes.to(device, non_blocking = True)
     elif cnn_output_combine_methods == 4:
         features = torch.cat((noun_features, verb_features, adjective_features, conjunction_features, preposition_features), 1)
-        features = cnn_linear(features)
+        features = decoder_model.module.linear_combiner(features)
+    elif cnn_output_combine_methods == 5:
+        features = torch.cat((noun_features, verb_features, adjective_features, conjunction_features, preposition_features), 1)
+        features = decoder_model.module.linear_combiner(features)
+        features = decoder_model.module.dropout(features)
+        features = decoder_model.module.linear_combiner2(features)
+        features = decoder_model.module.dropout2(features)
     features = features.to(device, non_blocking = True)
     return features, attributes
 

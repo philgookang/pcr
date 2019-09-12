@@ -26,6 +26,8 @@ from config.config_path import FLICKR8k_VALIDATION_IMG
 from config.config_path import FLICKR8k_TEST_IMG
 from config.config_path import FLICKR8k_ANNOTATION
 
+from config.config_path import FLICKR30k_ANNOTATION
+
 from config.config_path import RESULT_ROOT
 from config.config_path import RESULT_IMAGE_W_CAPTION
 from config.config_path import RESULT_HEATMAP_ROOT

@@ -15,6 +15,8 @@ FLICKR8k_VALIDATION_IMG = os.path.join(COCO_ROOT, "Flickr_8k.devImages.txt")
 FLICKR8k_TEST_IMG = os.path.join(COCO_ROOT, "Flickr_8k.testImages.txt")
 FLICKR8k_ANNOTATION = os.path.join(COCO_ROOT, "Flickr8k.token.txt")
 
+FLICKR30k_ANNOTATION = os.path.join(COCO_ROOT, "flickr30k.txt")
+
 RESULT_IMAGE_W_CAPTION = os.path.join(RESULT_ROOT, "image_with_caption", "")
 RESULT_HEATMAP_ROOT = os.path.join(RESULT_ROOT, "heatmap")
 RESULT_HEATMAP_CNN_PATH = os.path.join(RESULT_HEATMAP_ROOT, "cnn")

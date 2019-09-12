@@ -25,6 +25,11 @@ if dataset_type == 2:
     dataset_file["test"] =          "cnn_rnn_test_dataset_flickr8k.pkl"
     dataset_file["validation"] =   "cnn_rnn_validation_dataset_flickr8k.pkl"
     dataset_file["result"] =        "cnn_rnn_caption_result_flickr8k.pkl"
+elif dataset_type == 3:
+    dataset_file["train"] = "cnn_rnn_train_dataset_flickr30k.pkl"
+    dataset_file["test"] = "cnn_rnn_test_dataset_flickr30k.pkl"
+    dataset_file["validation"] = "cnn_rnn_validation_dataset_flickr30k.pkl"
+    dataset_file["result"] = "cnn_rnn_caption_result_flickr30k.pkl"
 
 dataset_skip_file = {
     "train"             : "skip_train.csv",

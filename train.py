@@ -66,6 +66,11 @@ def train(learning_rate, use_visdom):
     # params = params + list(decoder_model.module.linear.parameters())
     if cnn_output_combine_methods == 4:                                              # combining method is linear
         params = params + list(decoder_model.module.linear_combiner.parameters())
+    elif cnn_output_combine_methods == 5:                                              # combining method is linear
+        params = params + list(decoder_model.module.linear_combiner.parameters())
+        params = params + list(decoder_model.module.dropout.parameters())
+        params = params + list(decoder_model.module.linear_combiner2.parameters())
+        params = params + list(decoder_model.module.dropout2.parameters())
     params = params + list(noun_model.module.linear.parameters())
     params = params + list(noun_model.module.bn.parameters())
     # params = params + list(verb_model.module.linear.parameters())
@@ -112,7 +117,7 @@ def train(learning_rate, use_visdom):
             adjective_features = adjective_model(images)
             conjunction_features = conjunction_model(images)
             preposition_features = preposition_model(images)
-            features, attributes = combine_output(noun_features, verb_features, adjective_features, conjunction_features, preposition_features, device, decoder_model.module.linear_combiner)
+            features, attributes = combine_output(noun_features, verb_features, adjective_features, conjunction_features, preposition_features, device, decoder_model)
             outputs = decoder_model(features, attributes, captions, lengths)
 
             # backpropagation
@@ -157,7 +162,7 @@ def train(learning_rate, use_visdom):
             adjective_features = adjective_model(images)
             conjunction_features = conjunction_model(images)
             preposition_features = preposition_model(images)
-            features, attributes = combine_output(noun_features, verb_features, adjective_features, conjunction_features, preposition_features, device, decoder_model.module.linear_combiner)
+            features, attributes = combine_output(noun_features, verb_features, adjective_features, conjunction_features, preposition_features, device, decoder_model)
             captions.cuda(device)
             features.cuda(device)
             decoder_model.cuda(device)

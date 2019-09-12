@@ -37,10 +37,16 @@ if __name__ == "__main__":
         # list of referece sentence
         test_list = test_dataset[filename]
 
+        ref1 = test_list[0]
+        ref2 = test_list[1]
+        ref3 = test_list[2]
+        ref4 = test_list[3]
+        ref5 = test_list[4]
+
         # add list
         result_holder.append({
-            "reference" : test_list[1:],
-            "hypothesis" : test_list[0]
+            "reference"  : [ref2, ref3, ref4, ref5],
+            "hypothesis" : ref1
         })
 
     # test human value

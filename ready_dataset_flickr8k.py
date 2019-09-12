@@ -25,6 +25,7 @@ with open(FLICKR8k_ANNOTATION, 'r') as f:
         cols = row.split('\t')
         img = cols[0].split("#")
         caption = cols[1].strip()
+        caption = caption.lower()
 
         if img[0] not in tokens:
             tokens[img[0]] = [ ]

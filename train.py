@@ -209,8 +209,13 @@ def train(learning_rate, use_visdom):
 def log_graph(loss_graph, loss_val, number_epochs, epoch, i, vis):
     if loss_graph == None:
         legend = ["Epoch {0}".format(epoch) for epoch in range(number_epochs)]
+
+        db_name = "MSCOCO"
+        if dataset_type == 2:
+            db_name = "Flickr8k"
+
         loss_graph = vis.line(X=np.array([i]), Y=np.array([loss_val]), name="Epoch {0}".format(epoch), opts=dict(
-            title="PCR (LR: {0}, Comb: {1})".format(learning_rate, cnn_output_combine_methods), legend=legend, xlabel='Iteration', ylabel='Loss'
+            title="PCR (LR: {0}, Comb: {1}, DB:  {2})".format(learning_rate, cnn_output_combine_methods, db_name), legend=legend, xlabel='Iteration', ylabel='Loss'
         ))
     else:
         vis.line(X=np.array([i]), Y=np.array([loss_val]), name="Epoch {0}".format(epoch), update='append', win=loss_graph)

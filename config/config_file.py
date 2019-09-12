@@ -18,6 +18,14 @@ dataset_file = {
     "result"            : "cnn_rnn_caption_result.pkl"
 }
 
+database = 2 # 1 - MSCOCO 2017, 2 - Flickr8k
+
+if database == 2:
+    dataset_file["train"] =         "cnn_rnn_train_dataset_flickr8k.pkl"
+    dataset_file["test"] =          "cnn_rnn_test_dataset_flickr8k.pkl"
+    dataset_file["validation"] =   "cnn_rnn_validation_dataset_flickr8k.pkl"
+    dataset_file["result"] =        "cnn_rnn_caption_result_flickr8k.pkl"
+
 dataset_skip_file = {
     "train"             : "skip_train.csv",
     "validation"        : "skip_validation.csv",

@@ -10,7 +10,8 @@ cnn_output_size = 1024
 # 2 - Average matrix             set rnn output 1024
 # 3 - noun only to decoder, VACP to combine with features (avg matrix) set rnn output 1024
 # 4 - Linear layer               set rnn output 1024
-cnn_output_combine_methods = 4
+# 5 - 2 Linear layer             set rnn output 1024
+cnn_output_combine_methods = 5
 
 
 # ##################################

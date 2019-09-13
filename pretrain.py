@@ -106,7 +106,7 @@ if __name__ == "__main__":
     cudnn.benchmark = True
 
     # loop through list
-    for pos in ["adjective", "verb", "conjunction", "preposition"]: # noun", "
+    for pos in ["verb", "conjunction", "preposition"]: # noun", " "adjective",
 
         # loop through each different learning rate
         for lr in learning_rate:

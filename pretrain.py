@@ -37,7 +37,7 @@ def train(pos, dataset, learning_rate, use_visdom):
     # #################################################################################
 
     # data loader
-    loader = torch.utils.data.DataLoader(dataset=PretrainDataset(dataset=dataset,transform=trans),
+    loader = torch.utils.data.DataLoader(dataset=PretrainDataset(dataset=dataset,transform=trans,img_path=IMG_PATH),
                                          batch_size = pretrain_batch_size,
                                          shuffle = is_shuffle,
                                          num_workers = number_of_workers,

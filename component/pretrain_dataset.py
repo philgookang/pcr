@@ -14,6 +14,7 @@ class PretrainDataset(data.Dataset):
     def __init__(self, **kwargs):
         self.dataset = kwargs["dataset"]
         self.transform = kwargs["transform"]
+        self.img_path = kwargs["img_path"]
 
         with warnings.catch_warnings():
             warnings.simplefilter("ignore")
@@ -37,7 +38,7 @@ class PretrainDataset(data.Dataset):
         item = self.dataset["data"][index]
 
         # get image
-        image = self.load_image(COCO_IMAGE_PATH + item["filename"])
+        image = self.load_image(self.img_path + item["filename"])
 
         # get one hot encoding of word
         label = None

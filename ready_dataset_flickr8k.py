@@ -36,6 +36,17 @@ with open(FLICKR8k_ANNOTATION, 'r') as f:
 # STRUCTURE
 # ###########################################################################################
 
+pretrain_dataset = {
+    "noun" : { "corpus" : ["<unk>"], "data" : [] },
+    "pronoun" : { "corpus" : ["<unk>"], "data" : [] },
+    "verb" : { "corpus" : ["<unk>"], "data" : [] },
+    "adjective" : { "corpus" : ["<unk>"], "data" : [] },
+    "adverb" : { "corpus" : ["<unk>"], "data" : [] },
+    "conjunction" : { "corpus" : ["<unk>"], "data" : [] },
+    "preposition" : { "corpus" : ["<unk>"], "data" : [] },
+    "interjection": { "corpus" : ["<unk>"], "data" : [] }
+}
+
 train_dataset = {
     "corpus" : ["<pad>", "<start>", "<end>", "<unk>"], # complete list of all the words used
     "data" : [] # { "filename" : "", "caption" : "" }
@@ -155,18 +166,13 @@ for item in tqdm(train_dataset["data"]):
                 pretrain_dataset[nltkpos]["data"].append({ "filename" : filename, "word" : word })
 
 for pos in word_counter:
-    with open(RESULT_DATASET_PATH + dataset_skip_file[pos], 'w', newline='') as csvfile:
-        spamwriter = csv.writer(csvfile, dialect='quote_dialect')
-        for word in word_counter[pos]:
-            if word_counter[pos][word] >= term_frequency_threshold:
-                pretrain_dataset[pos]["corpus"].append(word)
-            else:
-                pos_skip_counter[pos] += 1
-                spamwriter.writerow([word, word_counter[pos][word]])
+    for word in word_counter[pos]:
+        if word_counter[pos][word] >= term_frequency_threshold:
+            pretrain_dataset[pos]["corpus"].append(word)
+        else:
+            pos_skip_counter[pos] += 1
 
 for pos in pos_skip_counter:
     print("skip", pos, pos_skip_counter[pos])
 
 save_dataset(dataset_file["pretrain"], pretrain_dataset)
-
-

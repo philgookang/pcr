@@ -26,7 +26,13 @@ with open(FLICKR30k_ANNOTATION, 'r', encoding="utf-8") as f:
         if img[0] not in tokens:
             tokens[img[0]] = [ ]
 
-        tokens[img[0]].append(caption.split(' '))
+        lst = caption.split(' ')
+        save_list = []
+        for w in lst:
+            if w != "":
+                save_list.append(w)
+
+        tokens[img[0]].append(save_list)
 
 train_set, validation_set, test_set = prase_data_by_ratio(tokens, validation_and_test_dataset_size)
 
@@ -146,6 +152,7 @@ pos_skip_counter = {"noun":0,"pronoun":0,"verb":0,"adjective":0,"adverb":0,"conj
 
 for filename in tqdm(train_set):
     for sentence in train_set[filename]:
+        # print("sentence:", sentence)
         tokens_pos = nltk.pos_tag(sentence)
         for word,tag in tokens_pos:
             for nltkpos in nltk_to_pos:
@@ -158,19 +165,13 @@ for filename in tqdm(train_set):
                     pretrain_dataset[nltkpos]["data"].append({ "filename" : filename, "word" : word })
 
 for pos in word_counter:
-    with open(RESULT_DATASET_PATH + dataset_skip_file[pos], 'w', newline='') as csvfile:
-        spamwriter = csv.writer(csvfile, dialect='quote_dialect')
-        for word in word_counter[pos]:
-            if word_counter[pos][word] >= term_frequency_threshold:
-                pretrain_dataset[pos]["corpus"].append(word)
-            else:
-                pos_skip_counter[pos] += 1
-                spamwriter.writerow([word, word_counter[pos][word]])
+    for word in word_counter[pos]:
+        if word_counter[pos][word] >= term_frequency_threshold:
+            pretrain_dataset[pos]["corpus"].append(word)
+        else:
+            pos_skip_counter[pos] += 1
 
 for pos in pos_skip_counter:
     print("skip", pos, pos_skip_counter[pos])
 
 save_dataset(dataset_file["pretrain"], pretrain_dataset)
-
-
-

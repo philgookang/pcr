@@ -20,7 +20,9 @@ from tqdm import tqdm
 if __name__ == "__main__":
 
     # load test & train dataset
-    test_dataset = load_dataset(dataset_file["test"])
+    # test_dataset = load_dataset(dataset_file["test"])
+    # test_dataset = load_dataset("cnn_rnn_test_dataset_flickr8k.pkl")
+    test_dataset = load_dataset("cnn_rnn_test_dataset.pkl")
 
     # result holder
     result_holder = []
@@ -45,8 +47,8 @@ if __name__ == "__main__":
 
         # add list
         result_holder.append({
-            "reference"  : [ref1, ref2, ref3, ref4],
-            "hypothesis" : ref5
+            "reference"  : [ref2, ref3, ref4, ref5],
+            "hypothesis" : ref1
         })
 
     # test human value

@@ -35,6 +35,9 @@ from config.config_path import RESULT_HEATMAP_CNN_PATH
 from config.config_path import RESULT_MODEL_PATH
 from config.config_path import RESULT_DATASET_PATH
 
+from config.config_path import HEATMAP
+from config.config_path import HEATMAP_CNN
+
 from config.config_path import IMG_PATH
 
 from config.config_train import term_frequency_threshold

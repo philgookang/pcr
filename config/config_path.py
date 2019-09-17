@@ -25,6 +25,9 @@ RESULT_HEATMAP_CNN_PATH = os.path.join(RESULT_HEATMAP_ROOT, "cnn")
 RESULT_MODEL_PATH = os.path.join(RESULT_ROOT, "model", "")
 RESULT_DATASET_PATH = os.path.join(RESULT_ROOT, "dataset", "")
 
+HEATMAP = os.path.join(RESULT_ROOT, "heatmap", "")
+HEATMAP_CNN = os.path.join(HEATMAP, "cnn", "")
+
 IMG_PATH = COCO_IMAGE_PATH # default 1
 if dataset_type == 2:
     IMG_PATH = FLICKR8k_IMAGE_PATH

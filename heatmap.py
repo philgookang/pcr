@@ -17,13 +17,13 @@ from tqdm import tqdm
 
 from PIL import Image
 
-def heatmap_cnn_image(filename, file_name_to_export, device, pos, target_class, target_layer):
+def heatmap_cnn_image(filename, file_name_to_export, device, pos, target_class, target_layer, dataset):
 
     # load image
     image = Image.open(filename).convert('RGB')
 
-    features = torch.load(model_save_path + model_file[pos]["train"])
-    cnn_model = Encoder(embed_size = 256)
+    features = torch.load(RESULT_MODEL_PATH + model_file[pos]["train"])
+    cnn_model = Encoder(embed_size = 1024)
     cnn_model = nn.DataParallel(cnn_model)
     cnn_model.to(device, non_blocking=True)
     cnn_model.load_state_dict(features)
@@ -47,22 +47,39 @@ def heatmap_cnn_image(filename, file_name_to_export, device, pos, target_class, 
 
 if __name__ == "__main__":
 
-    pos = "noun"
     dataset = load_dataset(dataset_file["pretrain"])
-    dataset = dataset[pos]
-
     trans =  transforms.Compose([transforms.RandomCrop(image_crop_size),transforms.RandomHorizontalFlip(),transforms.ToTensor(),transforms.Normalize((0.485, 0.456, 0.406), (0.229, 0.224, 0.225))])
-    pretrain_dataset = PretrainDataset(dataset = dataset, transform = trans)
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     target_layer = 4
 
-    for i in tqdm(range(len(pretrain_dataset))):
-        item = pretrain_dataset.get(i)
+    for pos in ["verb", "adjective", "conjunction", "preposition"]:
 
-        label = pretrain_dataset.convert_word(item["word"])
+        pretrain_dataset = PretrainDataset(dataset = dataset[pos], transform = trans, img_path = IMG_PATH)
 
-        heatmap_org_image_result_path = os.path.join(heatmap_cnn_path, pos, item["word"] + "_" + item["filename"].replace(".", "_o.") )
-        heatmap_result_path = os.path.join(heatmap_cnn_path, pos, item["word"] + "_" + item["filename"].replace(".", "_" + item["word"] + ".") )
+        for i in tqdm(range(len(pretrain_dataset))):
 
-        copyfile(coco_pretrain_image_path_original + item["filename"], heatmap_org_image_result_path)
-        heatmap_cnn_image(coco_pretrain_image_path + item["filename"], heatmap_result_path, device, pos, label, target_layer)
+            # get item
+            item = pretrain_dataset.get(i)
+
+            # get label
+            label = pretrain_dataset.convert_word(item["word"])
+
+            # create file name
+            file_split = item["filename"].split('.')
+            filename = "{0}_{1}.{2}".format(i, item["word"], file_split[1])
+
+            # get image
+            heatmap_org_image_result_path = os.path.join(HEATMAP_CNN, pos, filename.replace(".", "_o.") )
+            heatmap_result_path = os.path.join(HEATMAP_CNN, pos, filename )
+
+            copyfile(IMG_PATH + item["filename"], heatmap_org_image_result_path)
+            heatmap_cnn_image(IMG_PATH + item["filename"], heatmap_result_path, device, pos, label, target_layer, dataset[pos])
+
+            break
+        break
+
+
+
+
+
+#

@@ -55,8 +55,18 @@ class PretrainDataset(data.Dataset):
         return self.dataset["data"][position]
 
     def convert_word(self, word):
-        label = self.label_encoder.transform([word])
+        try:
+            label = self.label_encoder.transform([word])
+        except ValueError:
+            label = self.label_encoder.transform(["<unk>"])
         return label
+
+    def decode_word(self, word_vector):
+        word_vector = word_vector[0].cpu().detach().numpy()
+        inverse_transform = self.one_hot_encoder.inverse_transform([word_vector])
+        wwww = [int(inverse_transform[0][0])]
+        word = self.label_encoder.inverse_transform(wwww)
+        return word[0]
 
     def load_image(self, filename):
         image = Image.open(filename).convert("RGB")

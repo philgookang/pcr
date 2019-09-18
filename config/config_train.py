@@ -13,7 +13,7 @@ validation_and_test_dataset_size = 5000
 # 1 - MSCOCO 2017
 # 2 - Flickr8k
 # 3 - Flickr30k
-dataset_type = 2
+dataset_type = 1
 
 
 # ##################################

@@ -148,6 +148,7 @@ if __name__ == "__main__":
 
     # the loading bar
     # create hypothesis
+    i = 0
     pbar = tqdm(test_dataset)
     for filename in pbar:
         try:
@@ -162,13 +163,14 @@ if __name__ == "__main__":
 
             # create image with file and caption
             if should_create_image:
-                lst = ["Reference"]
+                lst = []
+                lst.append('-' + ' '.join(hypothesis))
                 lst.extend([' '.join(cap) for cap in test_dataset[filename]])
-                lst.extend(["", "Hypothesis"])
-                lst.append(' '.join(hypothesis))
-                create_image_caption(os.path.join(COCO_IMAGE_PATH, filename), os.path.join(RESULT_IMAGE_W_CAPTION, filename), lst)
+                create_image_caption(os.path.join(COCO_IMAGE_PATH, filename), os.path.join(RESULT_IMAGE_W_CAPTION, str(i) + "_" + filename), lst)
         except:
             skip_count += 1
+
+        i += 1
 
      # save result to file
     with open(os.path.join(RESULT_ROOT, dataset_file["result"]), "wb") as f:

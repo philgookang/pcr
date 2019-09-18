@@ -48,5 +48,5 @@ is_shuffle = False
 pretrain_batch_size = 128
 
 # size of each training cycle
-train_batch_size = 128
+train_batch_size = 192
 # train_batch_size = 16 # for bidirectional

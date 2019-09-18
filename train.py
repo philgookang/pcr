@@ -73,12 +73,12 @@ def train(learning_rate, use_visdom):
         params = params + list(decoder_model.module.dropout2.parameters())
     params = params + list(noun_model.module.linear.parameters())
     params = params + list(noun_model.module.bn.parameters())
-    # params = params + list(verb_model.module.linear.parameters())
-    # params = params + list(verb_model.module.bn.parameters())
-    # params = params + list(conjunction_model.module.linear.parameters())
-    # params = params + list(conjunction_model.module.bn.parameters())
-    # params = params + list(preposition_model.module.linear.parameters())
-    # params = params + list(preposition_model.module.bn.parameters())
+    params = params + list(verb_model.module.linear.parameters())
+    params = params + list(verb_model.module.bn.parameters())
+    params = params + list(conjunction_model.module.linear.parameters())
+    params = params + list(conjunction_model.module.bn.parameters())
+    params = params + list(preposition_model.module.linear.parameters())
+    params = params + list(preposition_model.module.bn.parameters())
     optimizer = torch.optim.Adam(params, lr = learning_rate)
 
     # #################################################################################
@@ -213,9 +213,11 @@ def log_graph(loss_graph, loss_val, number_epochs, epoch, i, vis):
         db_name = "MSCOCO"
         if dataset_type == 2:
             db_name = "Flickr8k"
+        elif dataset_type == 3:
+            db_name = "Flickr30k"
 
         loss_graph = vis.line(X=np.array([i]), Y=np.array([loss_val]), name="Epoch {0}".format(epoch), opts=dict(
-            title="PCR (LR: {0}, Comb: {1}, DB:  {2})".format(learning_rate, cnn_output_combine_methods, db_name), legend=legend, xlabel='Iteration', ylabel='Loss'
+            title="{0} | {1} | {2}".format(learning_rate, cnn_output_combine_methods, db_name), legend=legend, xlabel='Iteration', ylabel='Loss'
         ))
     else:
         vis.line(X=np.array([i]), Y=np.array([loss_val]), name="Epoch {0}".format(epoch), update='append', win=loss_graph)

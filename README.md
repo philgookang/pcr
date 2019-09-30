@@ -1,5 +1,5 @@
-# PoS Based CNN-RNN (PCR) Image Captioning Sub-model Generation
-This project is a simple CNN-RNN based image caption
+# Detecting Parts of Speech from Image for Caption Generator
+This project is the original source code for the paper (to be inputted).
 
 **Part of Speech**
 1. Noun

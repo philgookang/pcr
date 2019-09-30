@@ -12,6 +12,7 @@ result/cnn_rnn_caption_result_flickr30k.pkl
 result/cnn_rnn_caption_result_flickr8k.pkl
 result/cnn_rnn_caption_result.pkl
 result/dataset/*.pkl
+result/survey/*.pkl
 result/model/*.pt
 result/model/*.pkl
 result/early_stop.bin

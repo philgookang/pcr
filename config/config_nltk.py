@@ -9,3 +9,12 @@ nltk_to_pos = {
     "preposition"   : ["IN"],
     "interjection"  : ["UH"]
 }
+
+
+pos_to_nltk = {
+    "NN" : "noun", "NNS" : "noun", "NNP" : "noun", "NNPS" : "noun", "PDT" : "noun",
+    "PRP" : "pronoun", "PRP$" : "pronoun", "WP" : "pronoun", "WP$" : "pronoun",
+    "VB" : "verb", "VBD" : "verb", "VBG" : "verb", "VBN" : "verb", "VBP" : "verb", "VBZ" : "verb",
+    "DT" : "adjective", "JJ" : "adjective", "JJR" : "adjective", "JJS" : "adjective",
+    "RB" : "adverb", "RBR" : "adverb", "RBS" : "adverb", "WRB" : "adverb",
+}

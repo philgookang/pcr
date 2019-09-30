@@ -3,6 +3,7 @@ from config.config_file import dataset_file
 from config.config_file import dataset_skip_file
 
 from config.config_nltk import nltk_to_pos
+from config.config_nltk import pos_to_nltk
 
 from config.config_model import cnn_output_size
 from config.config_model import cnn_output_combine_methods

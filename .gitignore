@@ -21,8 +21,11 @@ evaluation/spice/tmp/*
 result/image_with_caption/*.jpg
 
 result/live/resize/*.png
+result/live/resize/*.jpg
 result/live/targets/*.jpg
+result/live/targets/*.png
 result/live/results/*.jpg
+result/live/results/*.png
 
 result/heatmap/*.png
 result/heatmap/*.jpg

@@ -20,6 +20,10 @@ evaluation/spice/cache/*.mdb
 evaluation/spice/tmp/*
 result/image_with_caption/*.jpg
 
+result/live/resize/*.png
+result/live/targets/*.jpg
+result/live/results/*.jpg
+
 result/heatmap/*.png
 result/heatmap/*.jpg
 

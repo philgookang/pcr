@@ -60,68 +60,49 @@ if __name__ == "__main__":
         device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
         target_layer = 4
 
-        # "verb" 0, "adjective" 1, "conjunction" 2, "preposition" 3
-        # pos_name    = ""
-        # gpu_num     = None
-        #
-        # if type == '1':
-        #     pos_name = "verb"
-        #     gpu_num = 0
-        # elif type == '2':
-        #     pos_name = "adjective"
-        #     gpu_num = 1
-        # elif type == '3':
-        #     pos_name = "conjunction"
-        #     gpu_num = 2
-        # elif type == '4':
-        #     pos_name = "preposition"
-        #     gpu_num = 3
-        #
-        # print("pos_name", pos_name)
+        pos = "verb"
 
-        for pos in ["verb", "adjective", "conjunction", "preposition"]:
+        pretrain_dataset = PretrainDataset(dataset = dataset[pos], transform = trans, img_path = IMG_PATH)
 
-            pretrain_dataset = PretrainDataset(dataset = dataset[pos], transform = trans, img_path = IMG_PATH)
+        features = torch.load(RESULT_MODEL_PATH + model_file[pos]["train"])
+        cnn_model = Encoder(embed_size = 1024)
+        cnn_model = nn.DataParallel(cnn_model) # , device_ids = [gpu_num]
+        cnn_model.to(device, non_blocking=True)
+        cnn_model.load_state_dict(features)
+        cnn_model.eval() # change model mode to eval
 
-            features = torch.load(RESULT_MODEL_PATH + model_file[pos]["train"])
-            cnn_model = Encoder(embed_size = 1024)
-            cnn_model = nn.DataParallel(cnn_model) # , device_ids = [gpu_num]
-            cnn_model.to(device, non_blocking=True)
-            cnn_model.load_state_dict(features)
-            cnn_model.eval() # change model mode to eval
+        cnn_model = cnn_model.module
+        cnn_model.update_layer(len(dataset[pos]["corpus"]))
+        cnn_model.eval()
+        cnn_model.to(device, non_blocking=True)
 
-            cnn_model = cnn_model.module
-            cnn_model.update_layer(len(dataset[pos]["corpus"]))
-            cnn_model.eval()
-            cnn_model.to(device, non_blocking=True)
+        i = 0
+        for filename in tqdm(test_dataset):
 
-            i = 0
-            for filename in tqdm(test_dataset):
+            image = load_image_file(IMG_PATH + filename, trans, device)
 
-                image = load_image_file(IMG_PATH + filename, trans, device)
+            features = None
+            try:
+                features = cnn_model(image)
+            except RuntimeError:
+                continue
 
-                features = None
-                try:
-                    features = cnn_model(image)
-                except RuntimeError:
-                    continue
+            word = pretrain_dataset.decode_word(features)
+            label = pretrain_dataset.convert_word(word)
 
-                word = pretrain_dataset.decode_word(features)
-                label = pretrain_dataset.convert_word(word)
+            # create file name
+            file_split = filename.split('.')
+            newfilename = "{0}_{1}.{2}".format(i, word, file_split[1])
 
-                # create file name
-                file_split = filename.split('.')
-                newfilename = "{0}_{1}.{2}".format(i, word, file_split[1])
+            # get image
+            heatmap_org_image_result_path = os.path.join(HEATMAP_CNN, pos, newfilename.replace(".", "_o.") )
+            heatmap_result_path = os.path.join(HEATMAP_CNN, pos, newfilename )
 
-                # get image
-                heatmap_org_image_result_path = os.path.join(HEATMAP_CNN, pos, newfilename.replace(".", "_o.") )
-                heatmap_result_path = os.path.join(HEATMAP_CNN, pos, newfilename )
-
-                copyfile(IMG_PATH + filename, heatmap_org_image_result_path)
-                heatmap_cnn_image(cnn_model, IMG_PATH + filename, heatmap_result_path, device, pos, label, target_layer, dataset[pos])
+            copyfile(IMG_PATH + filename, heatmap_org_image_result_path)
+            heatmap_cnn_image(cnn_model, IMG_PATH + filename, heatmap_result_path, device, pos, label, target_layer, dataset[pos])
 
 
-                i += 1
+            i += 1
 
 
 

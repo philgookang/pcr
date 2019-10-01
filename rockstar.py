@@ -47,6 +47,7 @@ if __name__ == "__main__":
     # create hypothesis
     print("begin caption generation")
     for filename in tqdm(os.listdir(args.resize)):
+        if filename == "README.md": continue
         try:
             hypothesis = pcr.testcase(os.path.join(args.resize + filename))
             create_image_caption(os.path.join(args.targets, filename), os.path.join(args.results,  filename), [' '.join(hypothesis)])

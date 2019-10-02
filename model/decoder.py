@@ -8,23 +8,13 @@ from config import *
 
 class Decoder(nn.Module):
 
-    def __init__(self, input_size, hidden_size, corpus_size, num_layers, max_seq_length=30, use_bi_direct = False, device = None):
+    def __init__(self, input_size, hidden_size, corpus_size, num_layers, max_seq_length=30, device = None):
         super(Decoder, self).__init__()
         self.input_size = input_size
         self.hidden_size = hidden_size
         self.num_layers = num_layers
-        self.use_bi_direct = use_bi_direct
         self.max_seg_length = max_seq_length
         self.device = device
-
-        self.linear_combiner = nn.Linear(cnn_output_size*5, 2048) # input_size
-        self.dropout = nn.Dropout(0.5)
-        self.linear_combiner2 = nn.Linear(2048, input_size) #input_size
-        self.dropout2 = nn.Dropout(0.7)
-
-        # self.dropout = None
-        # self.linear_combiner2 = None
-        # self.dropout2 = None
 
         self.embed = nn.Embedding(corpus_size, input_size)
         self.lstm = nn.LSTM(input_size = input_size,
@@ -33,63 +23,12 @@ class Decoder(nn.Module):
                             bias = True,
                             batch_first = True,
                             dropout = rnn_lstm_dropout,
-                            bidirectional = self.use_bi_direct)
-        if self.use_bi_direct:
-            print("LSTM bidireciton:", self.use_bi_direct)
-            self.linear = nn.Linear(hidden_size*2, corpus_size)   # 2 for bidirection
-        else:
-            self.linear = nn.Linear(hidden_size, corpus_size)
-
-    def forward_for_bi(self, features, x, l):
-
-        # for i in range(len(x)):
-        new_dataset = []
-        before_embd = []
-
-        for idx, item in enumerate(x):
-            before_embd.append(item["data"])
-
-        section_tensor = torch.stack(before_embd, 0)
-        embeddings = self.embed(section_tensor)
-        embeddings_list = list(embeddings.cpu().detach().numpy())
-
-        for row, item in enumerate(x):
-
-            image_tensor = features[item["section"]]
-            embeddings_row = embeddings_list[row]
-
-            image_tensor2 = list(image_tensor.cpu().detach().numpy())
-
-            tmp = list(embeddings_row)
-            tmp.insert(0, image_tensor2)
-            new_dataset.append(tmp.copy())
-
-        new_dataset_tensor = torch.FloatTensor(new_dataset)
-
-        new_dataset_tensor = new_dataset_tensor.to(self.device)
-        new_dataset_tensor.cuda(self.device)
-
-        packed = pack_padded_sequence(new_dataset_tensor, l, batch_first=True)
-
-        # print("packed[0].shape", packed[0].shape)
-
-        hiddens, _ = self.lstm(packed)
-
-        sent_output = nn.utils.rnn.pad_packed_sequence(hiddens, batch_first=True)[0]
-
-        aaaaaaa = sent_output[:, -1, :]  # <- this is 윤재
-        result = self.linear(aaaaaaa)
-
-        return result
+                            bidirectional = False)
+        self.linear = nn.Linear(hidden_size, corpus_size)
 
     def forward(self, features, attributes, captions, lengths):
 
-        if self.use_bi_direct:
-            return self.forward_for_bi(features, attributes, captions)
-
         embeddings = self.embed(captions)
-        if cnn_output_combine_methods == 3:                      # inserting VCAP at each state of LSTM sequencing
-            embeddings = embeddings * (attributes.unsqueeze(1))
         embeddings = torch.cat((features.unsqueeze(1), embeddings), 1)
         packed = pack_padded_sequence(embeddings, lengths, batch_first=True)
 
@@ -102,9 +41,6 @@ class Decoder(nn.Module):
         self.linear = nn.Linear(self.hidden_size, corpus_size)
 
     def sample(self, features, attributes, states = None):
-        if self.use_bi_direct:
-            return self.samplebi(features, attributes, states)
-
         sampled_ids = []
         inputs = features.unsqueeze(1)
         for i in range(self.max_seg_length):
@@ -114,42 +50,6 @@ class Decoder(nn.Module):
             sampled_ids.append(predicted)
             inputs = self.embed(predicted)
             inputs = inputs.unsqueeze(1)
-            if cnn_output_combine_methods == 3:                      # inserting VCAP at each state of LSTM sequencing
-                inputs = inputs * (attributes.unsqueeze(1))
-        sampled_ids = torch.stack(sampled_ids, 1)
-        return sampled_ids
-
-    def samplebi(self, features, attributes, states = None):
-        sampled_ids = []
-        inputs = features.unsqueeze(1)
-        print("inputs -1", inputs[0].shape)
-        for i in range(self.max_seg_length):
-            hiddens, states = self.lstm(inputs, states)
-
-            print("hiddens", i, hiddens.shape)
-
-            outputs = self.linear(hiddens.squeeze(1))
-            _, predicted = outputs.max(1)
-            sampled_ids.append(predicted)
-            input_next = self.embed(predicted)
-            input_next = input_next.unsqueeze(1)
-
-            inputs = input_next
-
-            # print("inputs", i, inputs.shape)
-            # print("input_next", i, input_next.shape)
-            # inputs = torch.cat((inputs, input_next), 1)
-            #
-            # print("inputs", i, inputs.shape)
-            #
-            #
-            # # sent_output = input_next[:, 0, :]
-            # sent_output = input_next[:, -1, :]  # <- this is 윤재
-            #
-            # print("sent_output", sent_output.shape)
-
-
-            # print(phil)
         sampled_ids = torch.stack(sampled_ids, 1)
         return sampled_ids
 

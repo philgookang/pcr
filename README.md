@@ -21,7 +21,16 @@ $ unzip data.zip
 $ rm data.zip
 ```
 
-**3. Download pretrained model**
+**3.1. Prepare dataset**  
+You only need to prepare your dataset if your are using your own custom dataset. Also, only run the code below for the dataset your are using. If you have downloaded our dataset skip this part.
+```
+$ python ready_dataset_mscoco.py
+$ python ready_dataset_flickr30k.py
+$ python ready_dataset_flickr8k.py
+```
+
+
+**4. Download pretrained model**
 ```
 $ wget http://pisa.snu.ac.kr/pcr/model.zip
 $ unzip model.zip

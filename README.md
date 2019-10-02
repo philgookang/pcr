@@ -13,8 +13,8 @@ $ cd pcr
 $ pip install -r requirements.txt
 ```
 
-**3. Download dataset**
-You only download the captions for train, validation, and test. For the actual image, you need to download them at the official website. 
+**3. Download dataset**  
+When you download our dataset, you only download the captions for train, validation, and test. For the actual image, you need to download them at the official website. Also, all of our captions are saved by Pickle. You can only open them in python!
 ```
 $ wget http://pcr.philgookang.com/data.zip
 $ unzip data.zip

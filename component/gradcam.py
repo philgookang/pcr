@@ -1,6 +1,6 @@
 """
 This could was taken from the author below.
-It has been customized to fix my model 
+It has been customized to fit my model
 
 @author: Utku Ozbulak - github.com/utkuozbulak
 @original code: https://github.com/utkuozbulak/pytorch-cnn-visualizations

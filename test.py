@@ -79,7 +79,7 @@ class Pcr():
 
     def load_rnn_model(self, train_output_size):
         features = torch.load(os.path.join(RESULT_MODEL_PATH, model_file["decoder"]["train"]))
-        decoder_model = Decoder( rnn_embed_size, rnn_lstm_hidden_size, train_output_size, rnn_lstm_number_of_layers, 30, use_bi_direction_lstm, self.device)
+        decoder_model = Decoder( rnn_embed_size, rnn_lstm_hidden_size, train_output_size, rnn_lstm_number_of_layers, 30, self.device)
         decoder_model = nn.DataParallel(decoder_model, device_ids = [0])
         decoder_model.to(self.device, non_blocking=True)
         decoder_model.load_state_dict(features)
@@ -151,6 +151,7 @@ if __name__ == "__main__":
     i = 0
     pbar = tqdm(test_dataset)
     for filename in pbar:
+
         try:
             hypothesis = pcr.testcase(os.path.join(IMG_PATH + filename))
 
@@ -167,16 +168,23 @@ if __name__ == "__main__":
                 lst.append('-' + ' '.join(hypothesis))
                 lst.extend([' '.join(cap) for cap in test_dataset[filename]])
                 create_image_caption(os.path.join(COCO_IMAGE_PATH, filename), os.path.join(RESULT_IMAGE_W_CAPTION, str(i) + "_" + filename), lst)
-        except:
+        except RuntimeError:
             skip_count += 1
+        except KeyboardInterrupt:
+            print("User requsted stop!")
+            i = -1
+            break
 
         i += 1
 
-     # save result to file
-    with open(os.path.join(RESULT_ROOT, dataset_file["result"]), "wb") as f:
-        pickle.dump(result_holder, f)
+    # check for user stop!
+    if i != -1:
 
-    print("skip_count:", skip_count)
+         # save result to file
+        with open(os.path.join(RESULT_ROOT, dataset_file["result"]), "wb") as f:
+            pickle.dump(result_holder, f)
 
-    # run scoring
-    run_score(result_holder)
+        print("skip_count:", skip_count)
+
+        # run scoring
+        run_score(result_holder)

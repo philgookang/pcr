@@ -19,52 +19,37 @@ def train(pos, dataset, learning_rate, use_visdom):
 
     # GPU or CPU
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-
-    # print device
     print("device: ", device)
 
     # target size
     embed_size = len(dataset["corpus"])
-
-    # print embed size
     print("embed_size: ", embed_size)
 
-    trans =  transforms.Compose([
-        transforms.RandomCrop(image_crop_size),
-        transforms.RandomHorizontalFlip(),
-        transforms.ToTensor(),
-        transforms.Normalize((0.485, 0.456, 0.406), (0.229, 0.224, 0.225))])
+    trans =  transforms.Compose([transforms.RandomCrop(image_crop_size), transforms.RandomHorizontalFlip(), transforms.ToTensor(), transforms.Normalize((0.485, 0.456, 0.406), (0.229, 0.224, 0.225))])
 
     # create visdom graph
     vis = visdom.Visdom()
-
-    # graph pointer
     loss_graph = None
+
 
     # #################################################################################
     # DATASET INITIALIZE
     # #################################################################################
 
     # data loader
-    loader = torch.utils.data.DataLoader(dataset=PretrainDataset(dataset=dataset,transform=trans),
+    loader = torch.utils.data.DataLoader(dataset=PretrainDataset(dataset=dataset,transform=trans,img_path=IMG_PATH),
                                          batch_size = pretrain_batch_size,
-                                         shuffle = True,
+                                         shuffle = is_shuffle,
                                          num_workers = number_of_workers,
                                          collate_fn = coco_collate_fn)
 
     # model to train
     cnn_model = Encoder(embed_size = embed_size)
-
-    # use multiple devices
     cnn_model = nn.DataParallel(cnn_model)
-
-    # send model to device
     cnn_model.to(device, non_blocking = True)
 
-    # loss function
+    # loss function & optimization
     criterion = nn.CrossEntropyLoss().cuda() if torch.cuda.is_available() else nn.CrossEntropyLoss()
-
-    # optimization
     optimizer = torch.optim.Adam(cnn_model.parameters(), lr = learning_rate)
 
 
@@ -86,7 +71,7 @@ def train(pos, dataset, learning_rate, use_visdom):
 
             # backpropagation
             loss = criterion(outputs,  torch.max(labels, 1)[1] )
-            images.zero_grad()
+            cnn_model.zero_grad()
             loss.backward()
             optimizer.step()
 
@@ -95,8 +80,6 @@ def train(pos, dataset, learning_rate, use_visdom):
 
             # check for every step
             if i % 36 == 0:
-
-                # graph loss and process
                 if use_visdom:
                     if loss_graph == None:
                         legend = ["Epoch {0}".format(epoch) for epoch in range(pretrain_number_epochs)]
@@ -117,13 +100,13 @@ if __name__ == "__main__":
     dataset = load_dataset(dataset_file["pretrain"])
 
     # learning rate
-    learning_rate = [ 0.004 ] # 0.006, 0.005, , 0.003
+    learning_rate = [ 0.004 ] # 0.006, 0.005, , 0.003, 0.004
 
     # back stats
     cudnn.benchmark = True
 
     # loop through list
-    for pos in ["adjective", "noun", "verb", "conjunction", "preposition"]:
+    for pos in [ "adjective", "verb", "conjunction", "preposition"]: # noun", "
 
         # loop through each different learning rate
         for lr in learning_rate:

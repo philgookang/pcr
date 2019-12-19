@@ -14,6 +14,7 @@ class PretrainDataset(data.Dataset):
     def __init__(self, **kwargs):
         self.dataset = kwargs["dataset"]
         self.transform = kwargs["transform"]
+        self.img_path = kwargs["img_path"]
 
         with warnings.catch_warnings():
             warnings.simplefilter("ignore")
@@ -37,10 +38,14 @@ class PretrainDataset(data.Dataset):
         item = self.dataset["data"][index]
 
         # get image
-        image = self.load_image(coco_pretrain_image_path + item["filename"])
+        image = self.load_image(self.img_path + item["filename"])
 
         # get one hot encoding of word
-        label = self.label_encoder.transform([item["word"]])
+        label = None
+        try:
+            label = self.label_encoder.transform([item["word"]])
+        except ValueError:
+            label = self.label_encoder.transform(["<unk>"])
         label = self.one_hot_encoder.transform([label])
         label = torch.from_numpy(label[0])
 
@@ -50,8 +55,18 @@ class PretrainDataset(data.Dataset):
         return self.dataset["data"][position]
 
     def convert_word(self, word):
-        label = self.label_encoder.transform([word])
+        try:
+            label = self.label_encoder.transform([word])
+        except ValueError:
+            label = self.label_encoder.transform(["<unk>"])
         return label
+
+    def decode_word(self, word_vector):
+        word_vector = word_vector[0].cpu().detach().numpy()
+        inverse_transform = self.one_hot_encoder.inverse_transform([word_vector])
+        wwww = [int(inverse_transform[0][0])]
+        word = self.label_encoder.inverse_transform(wwww)
+        return word[0]
 
     def load_image(self, filename):
         image = Image.open(filename).convert("RGB")

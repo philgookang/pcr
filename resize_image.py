@@ -15,6 +15,7 @@ def resize_images(image_dir, output_dir, size):
     images = os.listdir(image_dir)
     num_images = len(images)
     for i, image in enumerate(images):
+        if image == "README.md": continue
         with open(os.path.join(image_dir, image), 'r+b') as f:
             with Image.open(f) as img:
                 img = resize_image(img, size)
@@ -26,8 +27,12 @@ def resize_images(image_dir, output_dir, size):
 if __name__ == '__main__':
 
     image_size = 256
-    target_folders = ["../data/val2017/"] #, "../data/test2017/", "../data/train2017/"
-    result_folders = ["../data/re_val2017/"] #, "../data/re_test2017/", "../data/re_train2017/"
+    # target_folders = ["../data/val2017/"] #, "../data/test2017/", "../data/train2017/"
+    # result_folders = ["../data/re_val2017/"] #, "../data/re_test2017/", "../data/re_train2017/"
+    # target_folders = ["../data/flickr8k/"] #, "../data/test2017/", "../data/train2017/"
+    # result_folders = ["../data/re_flickr8k/"] #, "../data/re_test2017/", "../data/re_train2017/"
+    target_folders = ["../data/flickr30k/"] #, "../data/test2017/", "../data/train2017/"
+    result_folders = ["../data/re_flickr30k/"] #, "../data/re_test2017/", "../data/re_train2017/"
 
     for target, result in tqdm(zip(target_folders, result_folders)):
         resize_images(target, result, [image_size, image_size])

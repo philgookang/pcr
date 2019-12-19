@@ -13,8 +13,10 @@ def run_score_on_file(filename):
 
     run_score(dataset)
 
-
 def run_score(dataset):
+
+    # get spice score
+    sscore = run_score_spice(dataset)
 
     # get bleu score
     bleu = Bleu()
@@ -32,22 +34,30 @@ def run_score(dataset):
     print("BLEU: ", bscore)
     print("CIDEr: ", cscore)
     print("ROUGE: ", rscore)
+    print("SPICE: ", sscore)
 
-    # print("")
-    # print("")
-    # print("")
-    # print("")
+def run_score_spice(dataset):
+
+    result_lst = {}
+
+    for id, item in enumerate(dataset):
+        result_lst["image_" + str(id)] = item
+
+    # fixed the hypothesis/caption wrong lableing
+    reference = { }
+    hypothesis = { }
+    no = 0
+    for filename in result_lst:
+        for ref in result_lst[filename]["reference"]:
+            reference[no] = [" ".join(ref)]
+            hypothesis[no] = [" ".join(result_lst[filename]["hypothesis"])]
+            no += 1
 
     # get spice score
-    # spice = Spice()
-    # sscore = spice.compute(dataset)
+    spice = Spice()
+    sscore = spice.compute_score(reference, hypothesis)
 
-    # print("Scores")
-    # print("BLEU: ", bscore)
-    # print("CIDEr: ", cscore)
-    # print("ROUGE: ", rscore)
-    # # print("SPICE: ", sscore)
-
+    return sscore[0]
 
 if __name__ == "__main__":
 

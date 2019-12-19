@@ -8,8 +8,11 @@ __pycache__/
 
 .idea/
 
+result/cnn_rnn_caption_result_flickr30k.pkl
+result/cnn_rnn_caption_result_flickr8k.pkl
 result/cnn_rnn_caption_result.pkl
 result/dataset/*.pkl
+result/survey/*.pkl
 result/model/*.pt
 result/model/*.pkl
 result/early_stop.bin
@@ -17,8 +20,17 @@ evaluation/spice/cache/*.mdb
 evaluation/spice/tmp/*
 result/image_with_caption/*.jpg
 
+result/live/resize/*.png
+result/live/resize/*.jpg
+result/live/targets/*.jpg
+result/live/targets/*.png
+result/live/results/*.jpg
+result/live/results/*.png
+
 result/heatmap/*.png
 result/heatmap/*.jpg
+
+result/dataset/*.csv
 
 result/verb_pos.csv
 

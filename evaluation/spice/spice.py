@@ -35,6 +35,7 @@ class Spice:
         total = 0
         pbar = tqdm(dataset)
         for item in pbar:
+            print("item", item)
             for ref in item["reference"]:
                 reference[num] = [ref]
                 hypothesis[num] = [" ".join(item["hypothesis"])]

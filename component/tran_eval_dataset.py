@@ -38,7 +38,10 @@ class TrainEvalDataset(data.Dataset):
 
 
     def convert_word(self, word):
-        label = self.label_encoder.transform([word])
+        try:
+            label = self.label_encoder.transform([word])
+        except ValueError:
+            label = self.label_encoder.transform(["<unk>"])
         return label[0]
 
 

@@ -1,7 +1,12 @@
 # Detecting Parts of Speech from Image for Caption Generator
-This project is the code for the paper 'Detecting Parts of Speech from Image for Caption Generation' which is currently in review. Details will be updated later. The goal of this model is to detect different parts of speech related features from an image, the features detected will be fed to a language model which will generate our caption. The concept is as below.  
+This project is the code for the paper 'Detecting Parts of Speech from Image for Caption Generation' which is currently in review. Details will be updated later. The goal of this model is to detect different Parts of Speech (PoS) related features from an image, the features detected will be fed to a language model which will generate our caption. The concept is as below.  
 ![alt text](https://github.com/philgookang/pcr/blob/master/rss/overview.png?raw=true "Overview of the PCR model")  
 
+
+# PoS CNN Model Detection
+One method to check our PoS CNN models were trained and can detect PoS related features is to use GradCAM heatmap as seen below:
+![alt text](https://github.com/philgookang/pcr/blob/master/rss/gradcam_1.png?raw=true "Adjective CNN Model GradCAM example")  
+![alt text](https://github.com/philgookang/pcr/blob/master/rss/gradcam_2.png?raw=true "Verb CNN Model GradCAM example")  
 
 
 # How To Use

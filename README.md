@@ -1,4 +1,4 @@
-# Detecting Parts of Speech from Image for Caption Generator
+# Detecting Parts of Speech from Image for Caption Generation
 This project is the code for the paper 'Detecting Parts of Speech from Image for Caption Generation' which is currently in review. Details will be updated later. The goal of this model is to detect different Parts of Speech (PoS) related features from an image, the features detected will be fed to a language model which will generate our caption. The concept is as below.  
 ![alt text](https://github.com/philgookang/pcr/blob/master/rss/overview.png?raw=true "Overview of the PCR model")  
 

@@ -1,6 +1,6 @@
 matplotlib==3.0.2
 nltk==3.4
-numpy==1.16.1
+numpy==1.22.0
 Pillow
 argparse
 Cython==0.29.11

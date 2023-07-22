@@ -4,7 +4,7 @@ numpy==1.16.1
 Pillow
 argparse
 Cython==0.29.11
-torch==1.0.1.post2
+torch==1.13.1
 torchvision==0.2.1
 visdom==0.1.8.8
 tqdm==4.31.1
